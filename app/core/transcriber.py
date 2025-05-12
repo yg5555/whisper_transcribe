@@ -3,6 +3,7 @@ import shutil
 import datetime
 import glob
 import whisper
+model = whisper.load_model("base")
 import json
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,7 +27,6 @@ def run_transcription_basic():
         return "音声ファイルがありません。"
 
     audio_path = audio_files[0]
-    model = whisper.load_model("base")
     result = model.transcribe(audio_path)
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
