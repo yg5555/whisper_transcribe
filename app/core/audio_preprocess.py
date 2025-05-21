@@ -6,7 +6,7 @@ def remove_silence(input_path: str, output_path: str):
     cmd = [
         "ffmpeg",
         "-i", input_path,
-        "-af", "silenceremove=1:0:-50dB",
+        "-af", "silenceremove=1:0:-30dB",
         output_path
     ]
     try:

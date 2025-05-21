@@ -41,7 +41,7 @@ def run_transcription_basic():
         audio_path = cleaned
 
     # Whisperで文字起こし
-    result = model.transcribe(audio_path)
+    result = model.transcribe(audio_path, language="ja")
 
     # 出力ファイル名の生成
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
