@@ -5,36 +5,40 @@ import glob
 import whisper
 import json
 
+from app.config import AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR
 from app.core.audio_preprocess import remove_silence
 
-# モデルのロード（ここでは base モデル）
+# Whisperモデルのロード
 model = whisper.load_model("base")
 
-# ディレクトリパスの定義
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-AUDIO_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "audio"))
-ARCHIVE_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "audio_archive"))
-OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "output"))
+def run_transcription_basic(audio_dir=None, output_dir=None, archive_dir=None, audio_file_path=None):
+    # デフォルトのパスを補完（引数がNoneならconfigの定数を使う）
+    audio_dir = audio_dir or AUDIO_DIR
+    output_dir = output_dir or OUTPUT_DIR
+    archive_dir = archive_dir or ARCHIVE_DIR
 
-def run_transcription_basic():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    os.makedirs(ARCHIVE_DIR, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(archive_dir, exist_ok=True)
 
-    # 音声ファイルの取得（更新日時で降順ソート）
-    audio_files = sorted(
-        glob.glob(os.path.join(AUDIO_DIR, "*.*")),
-        key=os.path.getmtime,
-        reverse=True
-    )
-    print(f"AUDIO_DIR: {AUDIO_DIR}")
-    print(f"検出されたファイル一覧: {audio_files}")
+    # 処理対象の音声ファイルの決定
+    if audio_file_path:
+        audio_path = audio_file_path
+    else:
+        # 指定がなければ最新のファイルを探す
+        audio_files = sorted(
+            glob.glob(os.path.join(audio_dir, "*.*")),
+            key=os.path.getmtime,
+            reverse=True
+        )
+        print(f"AUDIO_DIR: {audio_dir}")
+        print(f"検出されたファイル一覧: {audio_files}")
 
-    if not audio_files:
-        return "音声ファイルがありません。"
+        if not audio_files:
+            return "音声ファイルがありません。"
 
-    audio_path = audio_files[0]
+        audio_path = audio_files[0]
 
-    # 無音除去処理の実行
+    # 無音除去処理
     cleaned_path = os.path.splitext(audio_path)[0] + "_cleaned.wav"
     cleaned = remove_silence(audio_path, cleaned_path)
     if cleaned:
@@ -46,8 +50,8 @@ def run_transcription_basic():
     # 出力ファイル名の生成
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     output_basename = os.path.splitext(os.path.basename(audio_path))[0] + f"_{timestamp}"
-    output_path = os.path.join(OUTPUT_DIR, output_basename + ".txt")
-    output_json_path = os.path.join(OUTPUT_DIR, output_basename + ".json")
+    output_path = os.path.join(output_dir, output_basename + ".txt")
+    output_json_path = os.path.join(output_dir, output_basename + ".json")
 
     # テキスト書き出し
     with open(output_path, "w", encoding="utf-8") as f:
@@ -57,11 +61,11 @@ def run_transcription_basic():
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    # 音声ファイルをアーカイブへ移動（失敗しても無視）
+    # 音声ファイルをアーカイブに移動（FastAPI経由などで移動不要なケースもある）
     try:
-        shutil.move(audio_path, os.path.join(ARCHIVE_DIR, os.path.basename(audio_path)))
+        shutil.move(audio_path, os.path.join(archive_dir, os.path.basename(audio_path)))
     except Exception as e:
-        return f"移動エラー: {e}"
+        print(f"アーカイブ移動失敗: {e}")
 
     print(f"文字起こし完了: {output_path}")
     return {

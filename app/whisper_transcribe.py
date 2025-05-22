@@ -1,41 +1,39 @@
-# 仮想環境のPythonを指定
-#!/Users/yg/projects/whisper_diarization/whisper_env/bin/python
 
-# SSL認証を無効化（必要に応じて使用）
-#SSLの認証
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-import os
-import glob
 import whisper
-import json
-import shutil
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+import gradio as gr
 
+# 定数パスをインポート
+from app.config import AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR
+
+# トランスクリプション関数をインポート
 from app.core.transcriber import run_transcription_basic as run_transcription
 
-# FastAPIの構成要素や外部UI、ルーターをインポート
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from fastapi import HTTPException
+# UIとルーターをインポート
 from app.gradio_ui import transcribe_gradio_ui
-import gradio as gr
 from app.upload_api import router as upload_router
 
-# FastAPIアプリケーションを作成
+# FastAPI アプリケーション
 app = FastAPI()
-
 app.include_router(upload_router, prefix="/api")
 
-# Gradio UIアプリを生成
+# Gradio UI を FastAPI に統合
 gradio_app = transcribe_gradio_ui()
 app = gr.mount_gradio_app(app, gradio_app, path="/")
 
-# API経由で文字起こしを行うエンドポイント
+# APIエンドポイント
 @app.post("/transcribe")
 def transcribe_api():
     try:
-        output_json, output_txt = run_transcription()
+        output_json, output_txt = run_transcription(
+            audio_dir=AUDIO_DIR,
+            output_dir=OUTPUT_DIR,
+            archive_dir=ARCHIVE_DIR
+        )
         return JSONResponse(content={
             "status": "success",
             "json_result": output_json,
@@ -48,6 +46,11 @@ def transcribe_api():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"予期しないエラー: {e}")
 
+# CLI実行時
 if __name__ == "__main__":
-    output_path = run_transcription()
-    print(f"文字起こし完了: {output_path}")
+    output_json, output_txt = run_transcription(
+        audio_dir=AUDIO_DIR,
+        output_dir=OUTPUT_DIR,
+        archive_dir=ARCHIVE_DIR
+    )
+    print(f"文字起こし完了: {output_txt}")

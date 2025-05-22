@@ -6,6 +6,10 @@ from app.core.transcriber import run_transcription_basic
 import shutil
 # 処理の待機時間を挿入するためのモジュールをインポート
 import time
+import os
+
+# パス定数をインポート
+from app.config import AUDIO_DIR
 
 status_textbox = None
 
@@ -14,19 +18,24 @@ def transcribe_with_status(filepath):
     global status_textbox
     if status_textbox is not None:
         status_textbox.update(value="ステータス: 音声ファイルをコピー中...")
-    # ファイルを所定のパスにコピー
-    shutil.copy(filepath, "../audio/input_audio.wav")
-    # 少し待ってから次の処理へ
+
+    # アップロードされたファイルを AUDIO_DIR にコピー
+    filename = os.path.basename(filepath)
+    dst_path = os.path.join(AUDIO_DIR, filename)
+    shutil.copy(filepath, dst_path)
+
     time.sleep(0.5)
 
     if status_textbox is not None:
         status_textbox.update(value="ステータス: Whisperで文字起こし中...")
-    _, text_path = run_transcription_basic()
+
+    result = run_transcription_basic()
 
     if status_textbox is not None:
         status_textbox.update(value="ステータス: 完了しました。")
+
     # 結果ファイルを読み込んで内容を返す
-    with open(text_path, "r", encoding="utf-8") as f:
+    with open(result["text_path"], "r", encoding="utf-8") as f:
         return f.read()
 
 # Gradio UIの構築
