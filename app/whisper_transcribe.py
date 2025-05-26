@@ -1,4 +1,3 @@
-
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -22,7 +21,7 @@ app = FastAPI()
 app.include_router(upload_router, prefix="/api")
 
 # Gradio UI を FastAPI に統合
-gradio_app = transcribe_gradio_ui()
+gradio_app = transcribe_nicegui_ui()
 app = gr.mount_gradio_app(app, gradio_app, path="/")
 
 # APIエンドポイント
