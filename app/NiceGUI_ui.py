@@ -80,7 +80,7 @@ def transcribe_nicegui_ui():
         result_box = ui.textarea(label='文字起こし結果')
         result_box.props('rows=10')
 
-    ui.run()
+    return ui
 
 if __name__ in {'__main__', '__mp_main__'}:
     transcribe_nicegui_ui()
