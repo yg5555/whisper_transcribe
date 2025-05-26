@@ -14,7 +14,7 @@ from app.config import AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR
 from app.core.transcriber import run_transcription_basic as run_transcription
 
 # UIとルーターをインポート
-from app.NiceGUI_ui import transcribe_gradio_ui
+from app.NiceGUI_ui import transcribe_nicegui_ui
 from app.upload_api import router as upload_router
 
 # FastAPI アプリケーション
