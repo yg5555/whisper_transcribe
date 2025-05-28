@@ -62,8 +62,7 @@ def transcribe_nicegui_ui():
         ui.upload(
             label='ここをクリックしてファイルを選択',
             on_upload=handle_upload,
-            auto_upload=True,
-            accept='.m4a,.wav'
+            auto_upload=True
         ).props('color=primary').classes('w-full')
 
         file_name_label = ui.label('選択中のファイル: なし').classes('text-sm')
