@@ -1,17 +1,13 @@
-import sys
 import os
 import threading
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from nicegui import ui
-import shutil
 import time
-
+from nicegui import ui
 from app.core.transcriber import run_transcription_basic
 from app.config import AUDIO_DIR
 
 uploaded_file = None
 status_label = None
-result_box.value = f.read() 
+result_box = None
 progress = None
 progress_label = None
 file_name_label = None
@@ -66,7 +62,8 @@ def transcribe_nicegui_ui():
         ui.upload(
             label='ここをクリックしてファイルを選択',
             on_upload=handle_upload,
-            auto_upload=True
+            auto_upload=True,
+            accept='.m4a,.wav'
         ).props('color=primary').classes('w-full')
 
         file_name_label = ui.label('選択中のファイル: なし').classes('text-sm')
