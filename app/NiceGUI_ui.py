@@ -11,7 +11,7 @@ from app.config import AUDIO_DIR
 
 uploaded_file = None
 status_label = None
-result_box = None
+result_box.value = f.read() 
 progress = None
 progress_label = None
 file_name_label = None
