@@ -1,7 +1,10 @@
+import sys
 import os
 import threading
+import shutil
 import time
-from nicegui import ui
+from nicegui import ui, app
+
 from app.core.transcriber import run_transcription_basic
 from app.config import AUDIO_DIR
 
@@ -44,6 +47,8 @@ def transcribe_with_status():
 def transcribe_nicegui_ui():
     global uploaded_file, status_label, result_box, progress, progress_label, file_name_label
 
+    app.add_static_files('/static', os.path.abspath(os.path.join(os.path.dirname(__file__), '../static')))
+
     with ui.column().classes('items-center').style('gap: 20px; max-width: 700px; margin: auto'):
 
         ui.label('Whisper 文字起こしアプリ').classes('text-2xl font-bold')
@@ -72,11 +77,16 @@ def transcribe_nicegui_ui():
         status_label = ui.label('ステータス: 未実行')
         progress_label = ui.label('進捗: 0%')
         progress = ui.linear_progress().props('value=0').style('width: 100%; max-width: 600px')
-
         result_box = ui.textarea(label='文字起こし結果')
         result_box.props('rows=10')
 
-    return ui
+    # フッターと広告読み込みスクリプトの分離
+    with ui.footer().style('padding: 20px;'):
+        ui.label('広告')
+
+    ui.add_body_html('<script src="/static/ads/admax.js"></script>')
+
+    ui.run()
 
 if __name__ in {'__main__', '__mp_main__'}:
     transcribe_nicegui_ui()
