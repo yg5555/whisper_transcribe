@@ -4,6 +4,7 @@ import threading
 import shutil
 import time
 from nicegui import ui, app
+from fastapi.responses import FileResponse  # ads.txt 用
 
 from app.core.transcriber import run_transcription_basic
 from app.config import AUDIO_DIR
@@ -14,6 +15,12 @@ result_box = None
 progress = None
 progress_label = None
 file_name_label = None
+
+# ads.txt をルートで返す
+@ui.page("/ads.txt")
+def ads_txt():
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../static/ads.txt"))
+    return FileResponse(path, media_type='text/plain')
 
 def transcribe_with_status():
     global uploaded_file, status_label, result_box, progress, progress_label
@@ -47,12 +54,12 @@ def transcribe_with_status():
 def transcribe_nicegui_ui():
     global uploaded_file, status_label, result_box, progress, progress_label, file_name_label
 
+    # 静的ファイル読み込み（広告スクリプト含む）
     app.add_static_files('/static', os.path.abspath(os.path.join(os.path.dirname(__file__), '../static')))
 
     with ui.column().classes('items-center').style('gap: 20px; max-width: 700px; margin: auto'):
 
         ui.label('Whisper 文字起こしアプリ').classes('text-2xl font-bold')
-
         ui.label('① 音声ファイルをアップロードしてください').classes('text-lg font-bold')
         ui.label('ファイルを選ぶだけでアップロードされます').style('color: gray')
 
@@ -71,19 +78,18 @@ def transcribe_nicegui_ui():
         ).props('color=primary').classes('w-full')
 
         file_name_label = ui.label('選択中のファイル: なし').classes('text-sm')
-
         ui.button('文字起こしを実行', on_click=lambda: threading.Thread(target=transcribe_with_status).start())
 
         status_label = ui.label('ステータス: 未実行')
         progress_label = ui.label('進捗: 0%')
         progress = ui.linear_progress().props('value=0').style('width: 100%; max-width: 600px')
-        result_box = ui.textarea(label='文字起こし結果')
-        result_box.props('rows=10')
 
-    # フッターと広告読み込みスクリプトの分離
+        # ✅ ラベルなし・下線なしのテキストエリア
+        result_box = ui.textarea().style('border: none; box-shadow: none;')
+
+    # フッター + 外部広告スクリプト
     with ui.footer().style('padding: 20px;'):
         ui.label('広告')
-
     ui.add_body_html('<script src="/static/ads/admax.js"></script>')
 
     ui.run()
