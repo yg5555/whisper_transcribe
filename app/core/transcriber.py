@@ -9,7 +9,7 @@ from app.config import AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR
 from app.core.audio_preprocess import remove_silence
 
 # Whisperモデルのロード
-model = whisper.load_model("tiny")
+model = whisper.load_model("base")
 
 def run_transcription_basic(audio_dir=None, output_dir=None, archive_dir=None, audio_file_path=None):
     # デフォルトのパスを補完（引数がNoneならconfigの定数を使う）

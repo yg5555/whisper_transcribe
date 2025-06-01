@@ -3,7 +3,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 # NiceGUIで作成したUI構成をインポート（この関数内でUIが構築される）
-from app.NiceGUI_ui import transcribe_nicegui_ui
+from whisper_transcribe.app.main_local import transcribe_nicegui_ui
 
 # NiceGUIのメインオブジェクト（イベントループやルーティングを持つ）
 from nicegui import ui

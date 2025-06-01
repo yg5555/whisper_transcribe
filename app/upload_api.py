@@ -22,7 +22,7 @@ async def upload_audio(file: UploadFile = File(...)):
         f.write(content)
 
     # Whisperで文字起こし（baseモデル）
-    model = whisper.load_model("tiny")  # モデルのロード
+    model = whisper.load_model("base")  # モデルのロード
     result = model.transcribe(input_path)
 
     # 出力ファイル名（元ファイル名＋transcript＋日時）
