@@ -9,9 +9,6 @@ from app.NiceGUI_ui import transcribe_nicegui_ui
 from nicegui import ui
 
 # アプリのエントリーポイント
-if __name__ == "__main__":
-    # UIを構築（ボタン・アップロード欄・テキスト出力欄など）
+if __name__ in {"__main__", "__mp_main__"}:
     transcribe_nicegui_ui()
-
-    # アプリを起動（デフォルトで http://localhost:8080 で表示される）
     ui.run(title='Whisper Transcribe App', reload=False)
