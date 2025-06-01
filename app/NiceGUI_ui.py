@@ -43,7 +43,7 @@ def transcribe_with_api():
         status_label.text = 'ファイルが未選択です'
         return
 
-    status_label.text = 'APIに送信中...'
+    status_label.text = '処理中...'
     progress.value = 0.2
     progress_label.text = '進捗: 20%'
 
