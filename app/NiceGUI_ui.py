@@ -4,10 +4,11 @@ import threading
 import shutil
 import time
 import json
+import requests
+from os.path import basename
 from nicegui import ui, app
 from fastapi.responses import FileResponse
 
-from app.core.transcriber import run_transcription_basic
 from app.config import AUDIO_DIR
 
 uploaded_file = None
@@ -24,45 +25,57 @@ def ads_txt():
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../static/ads.txt"))
     return FileResponse(path, media_type='text/plain')
 
-def transcribe_with_status():
-    global uploaded_file, status_label, result_box, progress, progress_label, download_txt_button, download_json_button
+def transcribe_via_api(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            files = {'file': f}
+            response = requests.post('http://localhost:8000/upload', files=files)
+            response.raise_for_status()
+            return response.json()
+    except Exception as e:
+        return {"error": str(e)}
+
+def transcribe_with_api():
+    global uploaded_file, status_label, result_box, progress, progress_label
+    global download_txt_button, download_json_button
 
     if not uploaded_file:
         status_label.text = 'ファイルが未選択です'
         return
 
-    progress.value = 0.1
-    progress_label.text = '進捗: 10%'
-    status_label.text = 'ステータス: 音声ファイルをコピー中...'
-    filename = uploaded_file.name
-    dst_path = os.path.join(AUDIO_DIR, filename)
-    with open(dst_path, 'wb') as f:
+    status_label.text = 'APIに送信中...'
+    progress.value = 0.2
+    progress_label.text = '進捗: 20%'
+
+    file_path = os.path.join(AUDIO_DIR, uploaded_file.name)
+    with open(file_path, 'wb') as f:
         f.write(uploaded_file.content.read())
 
-    time.sleep(0.5)
+    result = transcribe_via_api(file_path)
 
-    progress.value = 0.4
-    progress_label.text = '進捗: 40%'
-    status_label.text = 'ステータス: Whisperで文字起こし中...'
-
-    result = run_transcription_basic()
+    if "error" in result:
+        status_label.text = f'エラー: {result["error"]}'
+        return
 
     progress.value = 1.0
     progress_label.text = '進捗: 100%'
     status_label.text = 'ステータス: 完了しました。'
 
-    with open(result["text_path"], "r", encoding="utf-8") as f:
-        result_box.value = f.read()
-
-    json_path = result["text_path"].replace(".txt", ".json")
-    with open(json_path, "w", encoding="utf-8") as f_json:
-        json.dump(result, f_json, ensure_ascii=False, indent=2)
+    if os.path.exists(result["text_path"]):
+        with open(result["text_path"], "r", encoding="utf-8") as f:
+            result_box.value = f.read()
 
     download_txt_button.visible = True
-    download_txt_button.on('click', lambda: ui.download(result["text_path"], filename="transcription.txt"))
+    download_txt_button.on(
+        'click',
+        lambda: ui.download(result["text_path"], filename=basename(result["text_path"]))
+    )
 
     download_json_button.visible = True
-    download_json_button.on('click', lambda: ui.download(json_path, filename="transcription.json"))
+    download_json_button.on(
+        'click',
+        lambda: ui.download(result["json_path"], filename=basename(result["json_path"]))
+    )
 
 def transcribe_nicegui_ui():
     global uploaded_file, status_label, result_box, progress, progress_label, file_name_label
@@ -91,13 +104,12 @@ def transcribe_nicegui_ui():
         ).props('color=primary').classes('w-full')
 
         file_name_label = ui.label('選択中のファイル: なし').classes('text-sm')
-        ui.button('文字起こしを実行', on_click=lambda: threading.Thread(target=transcribe_with_status).start())
+        ui.button('文字起こしを実行', on_click=lambda: threading.Thread(target=transcribe_with_api).start())
 
         status_label = ui.label('ステータス: 未実行')
         progress_label = ui.label('進捗: 0%')
         progress = ui.linear_progress().props('value=0').style('width: 100%; max-width: 600px')
 
-        # ✅ ここで先に配置（上部に表示される）
         download_txt_button = ui.button(
             '文字起こし（.TXT）をダウンロード',
             on_click=lambda: None
@@ -110,7 +122,6 @@ def transcribe_nicegui_ui():
         ).props('color=primary')
         download_json_button.visible = False
 
-        # ✅ 結果表示エリア（ボタンの下に来る）
         result_box = ui.textarea().style('border: none; box-shadow: none; width: 100%; height: 300px')
 
     with ui.footer().style('padding: 20px;'):

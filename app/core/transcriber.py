@@ -61,12 +61,6 @@ def run_transcription_basic(audio_dir=None, output_dir=None, archive_dir=None, a
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    # 音声ファイルをアーカイブに移動（FastAPI経由などで移動不要なケースもある）
-    try:
-        shutil.move(audio_path, os.path.join(archive_dir, os.path.basename(audio_path)))
-    except Exception as e:
-        print(f"アーカイブ移動失敗: {e}")
-
     print(f"文字起こし完了: {output_path}")
     return {
         "text_path": output_path,
