@@ -29,7 +29,15 @@ def transcribe_direct():
     progress_label.text = '進捗: 20%'
     status_label.text = '文字起こし中...'
 
-    result = run_transcription_basic(file_path)
+    result = run_transcription_basic(audio_file_path=file_path)
+
+    if isinstance(result, str):
+        status_label.text = f'エラー: {result}'
+        return
+
+    if not isinstance(result, dict) or result.get("status") == "error":
+        status_label.text = result.get("message", "エラーが発生しました")
+        return
 
     progress.value = 1.0
     progress_label.text = '進捗: 100%'

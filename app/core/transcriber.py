@@ -34,7 +34,12 @@ def run_transcription_basic(audio_dir=None, output_dir=None, archive_dir=None, a
         print(f"検出されたファイル一覧: {audio_files}")
 
         if not audio_files:
-            return "音声ファイルがありません。"
+            return {
+                "status": "error",
+                "message": "音声ファイルがありません。",
+                "text_path": None,
+                  "json_path": None
+                  }
 
         audio_path = audio_files[0]
 
