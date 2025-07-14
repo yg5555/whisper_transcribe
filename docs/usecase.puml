@@ -1,0 +1,12 @@
+@startuml
+actor User
+User --> (Upload Audio File)
+User --> (Run Transcription)
+User --> (Show Result)
+User --> (download txt)
+User --> (download json)
+@enduml
+
+
+
+

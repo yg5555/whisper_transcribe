@@ -1,0 +1,38 @@
+@startuml
+skinparam componentStyle rectangle
+
+title 3層アーキテクチャ + コンポーネント構成 + 処理フロー図
+
+actor User
+
+package "プレゼンテーション層\n（ユーザーが触れる部分）" {
+  [NICEGUI (Frontend)\n画面UI：ファイル選択・実行・表示など]
+}
+
+package "アプリケーション層\n（裏で動く処理の制御）" {
+  [FastAPI Controller\n操作を受け取り制御]
+  [Transcription Handler (Whisper)\n音声→文字起こし]
+  [Progress Manager\n進捗表示制御]
+  [Download API (txt/json)\n保存用データ作成]
+}
+
+package "データ層\n（一時的なデータの置き場）" {
+  [Temporary File Storage\nアップロードした音声]
+  [Transcription Result Memory\n文字起こし結果]
+}
+
+' 処理フローの追加
+User --> [NICEGUI (Frontend)\n画面UI：ファイル選択・実行・表示など] : 音声ファイル選択・アップロード
+[NICEGUI (Frontend)\n画面UI：ファイル選択・実行・表示など] --> [FastAPI Controller\n操作を受け取り制御] : 処理開始リクエスト
+
+[FastAPI Controller\n操作を受け取り制御] --> [Transcription Handler (Whisper)\n音声→文字起こし] : 音声処理指示
+[Transcription Handler (Whisper)\n音声→文字起こし] --> [Temporary File Storage\nアップロードした音声] : 読み込み
+
+[FastAPI Controller\n操作を受け取り制御] --> [Progress Manager\n進捗表示制御] : 状況更新
+User --> [NICEGUI (Frontend)\n画面UI：ファイル選択・実行・表示など] : 処理進捗の閲覧
+
+[FastAPI Controller\n操作を受け取り制御] --> [Download API (txt/json)\n保存用データ作成] : 結果生成
+[Download API (txt/json)\n保存用データ作成] --> [Transcription Result Memory\n文字起こし結果]
+
+User --> [NICEGUI (Frontend)\n画面UI：ファイル選択・実行・表示など] : 結果表示・保存（txt/json）
+@enduml

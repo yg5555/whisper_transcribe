@@ -1,0 +1,28 @@
+@startuml
+actor User
+participant "NICEGUI UI\n(ローカル画面)" as UI
+participant "transcribe_direct()\n(処理関数)" as Logic
+participant "Whisper Engine\n(run_transcription_basic)" as Whisper
+participant "Storage\n(ローカルファイル)" as Storage
+
+== アップロード処理 ==
+User -> UI : 音声ファイルを選択
+UI -> UI : handle_upload(e)\n・uploaded_fileに保持\n・ファイル名表示\n・ステータス更新
+
+== 文字起こし実行 ==
+User -> UI : 「文字起こしを実行」ボタン押下
+UI -> Logic : transcribe_direct()
+
+Logic -> Storage : 音声ファイルをAUDIO_DIRに保存
+Logic -> Whisper : run_transcription_basic(file_path)
+Whisper -> Storage : テキスト/JSONファイルとして保存
+Whisper --> Logic : 結果(dict)を返す
+
+Logic -> UI : ステータス更新・進捗表示
+Logic -> Storage : テキストファイル読み込み
+Logic -> UI : 結果表示（result_box.value にセット）
+
+Logic -> UI : ダウンロードボタン表示・設定
+UI -> User : .txt / .json ファイルをダウンロード（on_click）
+
+@enduml

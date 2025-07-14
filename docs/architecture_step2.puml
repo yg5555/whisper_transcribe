@@ -1,0 +1,39 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+
+' プレゼンテーション層
+package "Presentation Layer (フロントエンド / React)" {
+  [User]
+  component "React UI\n(Render Static Site)" as React
+}
+
+' アプリケーション層
+package "Application Layer (FastAPI API)" {
+  component "Upload API\nPOST /api/upload" as UploadAPI
+  component "Transcribe API\nPOST /api/transcribe" as TranscribeAPI
+  component "Result API\nGET /api/result" as ResultAPI
+  component "Status API\nGET /api/status" as StatusAPI
+}
+
+' ドメイン・データ層
+package "Domain / Data Layer" {
+  component "Whisper\n音声→テキスト変換" as Whisper
+  component "Temporary File Storage\n(一時保存)" as Storage
+}
+
+' フロー接続
+User --> React : ファイル選択・アップロード
+React --> UploadAPI : POST /api/upload\n音声ファイル送信
+UploadAPI --> Storage : 一時保存
+
+React --> TranscribeAPI : POST /api/transcribe
+TranscribeAPI --> Whisper : テキスト変換
+Whisper --> Storage : 結果保存
+
+React --> StatusAPI : GET /api/status
+React --> ResultAPI : GET /api/result/txt/json
+ResultAPI --> Storage : 結果取得
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+actor User
+participant "React UI\n(Render Static Site)" as React
+participant "Upload API\nPOST /api/upload" as UploadAPI
+participant "Transcribe API\nPOST /api/transcribe" as TranscribeAPI
+participant "Result API\nGET /api/result" as ResultAPI
+participant "Status API\nGET /api/status" as StatusAPI
+participant "Temporary File Storage" as Storage
+participant "Whisper Engine\n(文字起こし)" as Whisper
+
+== アップロード処理 ==
+User -> React : 音声ファイル選択
+React -> UploadAPI : POST /api/upload\n（ファイル送信）
+UploadAPI -> Storage : 一時保存
+UploadAPI --> React : 保存完了レスポンス
+
+== 文字起こし処理 ==
+React -> TranscribeAPI : POST /api/transcribe
+TranscribeAPI -> Whisper : 音声→テキスト変換
+Whisper -> Storage : テキスト保存
+TranscribeAPI --> React : 処理完了レスポンス
+
+== 結果取得処理 ==
+React -> StatusAPI : GET /api/status
+StatusAPI --> React : 処理ステータス
+
+React -> ResultAPI : GET /api/result
+ResultAPI -> Storage : テキスト取得
+ResultAPI --> React : テキスト or JSONレスポンス
+
+@enduml
