@@ -5,8 +5,8 @@ import glob
 import whisper
 import json
 
-from app.config import AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR
-from app.core.audio_preprocess import remove_silence
+from backend.app.config import AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR
+from backend.app.core.audio_preprocess import remove_silence
 
 # Whisperモデルのロード
 model = whisper.load_model("base")

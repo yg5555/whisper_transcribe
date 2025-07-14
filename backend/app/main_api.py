@@ -1,8 +1,8 @@
-# app/main_api.py
+<file name=0 path=/Users/yg/projects/whisper_transcribe/backend/app/main_api.py># app/main_api.py
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.transcriber import run_transcription_basic
+from backend.app.core.transcriber import run_transcription_basic
 import shutil
 import tempfile
 import os
