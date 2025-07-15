@@ -1,0 +1,10 @@
+{
+  "name": "whisper_transcribe_root",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"cd backend && PYTHONPATH=. uvicorn app.main:app --reload --port 8000\" \"cd frontend && npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

@@ -1,42 +1,78 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+import React, { useState } from 'react';
+import './App.css';
+
+function App() {
+  const [file, setFile] = useState<File | null>(null);
+  const [transcript, setTranscript] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleUpload = async () => {
+    if (!file) return;
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:5000/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+      const transcribeData = await response.json();
+      console.log("transcribeData:", transcribeData);
+      setTranscript(transcribeData.text);
+    } catch (error) {
+      console.error('Error:', error);
+      setTranscript(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = (format: 'txt' | 'json') => {
+    if (!transcript) return;
+    let blob;
+    if (format === 'txt') {
+      blob = new Blob([transcript], { type: 'text/plain' });
+    } else {
+      blob = new Blob([JSON.stringify({ transcript })], { type: 'application/json' });
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transcript.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="app-container">
+      <h1>Whisper Transcribe</h1>
+      <input
+        type="file"
+        accept="audio/*"
+        onChange={(e) => {
+          if (e.target.files) {
+            setFile(e.target.files[0]);
+            setTranscript(null);
+          }
+        }}
+      />
+      <button onClick={handleUpload} disabled={!file || loading}>
+        {loading ? '文字起こし中...' : '文字起こし開始'}
+      </button>
+      {transcript ? (
+        <div>
+          <h3>文字起こし結果：</h3>
+          <textarea value={transcript} readOnly className="transcript-area" />
+          <br /><br />
+          <button onClick={() => handleDownload('txt')}>.txtとしてダウンロード</button>
+          <button onClick={() => handleDownload('json')}>.jsonとしてダウンロード</button>
+        </div>
+      ) : (!loading && file && (
+        <p>文字起こし結果が取得できませんでした。</p>
+      ))}
+    </div>
+  );
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
+export default App;

@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "concurrently \"cd ../backend/app && uvicorn main:app --reload --port 8000\" \"vite\""
+    "preview": "vite preview"
   },
   "dependencies": {
     "axios": "^1.10.0",

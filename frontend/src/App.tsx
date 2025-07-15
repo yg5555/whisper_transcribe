@@ -18,16 +18,28 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:8000/transcribe', {
+      // Step 1: Upload file
+      const uploadRes = await fetch('http://localhost:8000/upload', {
         method: 'POST',
         body: formData,
       });
-      const data = await response.json();
-      setTranscript(data.text);
+      const uploadData = await uploadRes.json();
+      const fileId = uploadData.file_id;
+
+      // Step 2: Transcribe uploaded file
+      const transcribeRes = await fetch('http://localhost:8000/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_id: fileId }),
+      });
+      const transcribeData = await transcribeRes.json();
+      console.log("transcribeData:", transcribeData);
+      setTranscript(transcribeData.text);
     } catch (error) {
       console.error('Error:', error);
       setTranscript('エラーが発生しました。');
     }
+
     setLoading(false);
   };
 
@@ -45,7 +57,7 @@ function App() {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '50px' }}>
+    <div className="app-container">
       <h1>Whisper Transcriber</h1>
       <input type="file" accept="audio/*" onChange={handleFileChange} />
       <br /><br />
@@ -53,15 +65,17 @@ function App() {
         {loading ? '文字起こし中...' : 'アップロードして文字起こし'}
       </button>
       <br /><br />
-      {transcript && (
+      {transcript ? (
         <div>
           <h3>文字起こし結果：</h3>
-          <textarea value={transcript} readOnly style={{ width: '80%', height: '200px' }} />
+          <textarea value={transcript} readOnly className="transcript-area" />
           <br /><br />
           <button onClick={() => handleDownload('txt')}>.txtとしてダウンロード</button>
           <button onClick={() => handleDownload('json')}>.jsonとしてダウンロード</button>
         </div>
-      )}
+      ) : (!loading && file && (
+        <p>文字起こし結果が取得できませんでした。</p>
+      ))}
     </div>
   );
 }
