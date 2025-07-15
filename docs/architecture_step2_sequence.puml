@@ -1,31 +1,31 @@
 @startuml
 actor User
-participant "React UI\n(Render Static Site)" as React
-participant "Upload API\nPOST /api/upload" as UploadAPI
-participant "Transcribe API\nPOST /api/transcribe" as TranscribeAPI
-participant "Result API\nGET /api/result" as ResultAPI
-participant "Status API\nGET /api/status" as StatusAPI
-participant "Temporary File Storage" as Storage
-participant "Whisper Engine\n(文字起こし)" as Whisper
+participant "Frontend (React)" as FE
+participant "Backend API (FastAPI)" as BE
+database "Temporary Storage\n(In-Memory / TempDir)" as TMP
+participant "Whisper Transcriber" as Whisper
 
-== アップロード処理 ==
-User -> React : 音声ファイル選択
-React -> UploadAPI : POST /api/upload\n（ファイル送信）
-UploadAPI -> Storage : 一時保存
-UploadAPI --> React : 保存完了レスポンス
+User -> FE : 音声ファイルを選択・アップロード
+FE -> BE : POST /upload (multipart/form-data)
+BE -> TMP : ファイルを一時保存
+BE -> FE : ファイルID(UUID)を返却
 
-== 文字起こし処理 ==
-React -> TranscribeAPI : POST /api/transcribe
-TranscribeAPI -> Whisper : 音声→テキスト変換
-Whisper -> Storage : テキスト保存
-TranscribeAPI --> React : 処理完了レスポンス
+User -> FE : 文字起こしボタンを押下
+FE -> BE : POST /transcribe (file_id)
+BE -> TMP : 該当ファイルを読み取り
+BE -> Whisper : 音声をテキスト化
+Whisper -> BE : テキストデータ返却
+BE -> TMP : 一時的にテキストを保存
+BE -> FE : 処理完了レスポンス（status: done）
 
-== 結果取得処理 ==
-React -> StatusAPI : GET /api/status
-StatusAPI --> React : 処理ステータス
+User -> FE : 結果画面を開く
+FE -> BE : GET /result/{id}
+BE -> TMP : テキスト取得
+BE -> FE : テキストデータ返却（画面表示）
 
-React -> ResultAPI : GET /api/result
-ResultAPI -> Storage : テキスト取得
-ResultAPI --> React : テキスト or JSONレスポンス
+User -> FE : ダウンロード操作
+FE -> BE : GET /download/txt/{id} または /download/json/{id}
+BE -> TMP : データ取得・変換
+BE -> FE : ダウンロードデータ返却
 
 @enduml
