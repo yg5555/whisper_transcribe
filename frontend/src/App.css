@@ -1,78 +1,34 @@
-import React, { useState } from 'react';
-import './App.css';
-
-function App() {
-  const [file, setFile] = useState<File | null>(null);
-  const [transcript, setTranscript] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleUpload = async () => {
-    if (!file) return;
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch('http://localhost:5000/transcribe', {
-        method: 'POST',
-        body: formData,
-      });
-      const transcribeData = await response.json();
-      console.log("transcribeData:", transcribeData);
-      setTranscript(transcribeData.text);
-    } catch (error) {
-      console.error('Error:', error);
-      setTranscript(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDownload = (format: 'txt' | 'json') => {
-    if (!transcript) return;
-    let blob;
-    if (format === 'txt') {
-      blob = new Blob([transcript], { type: 'text/plain' });
-    } else {
-      blob = new Blob([JSON.stringify({ transcript })], { type: 'application/json' });
-    }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `transcript.${format}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <div className="app-container">
-      <h1>Whisper Transcribe</h1>
-      <input
-        type="file"
-        accept="audio/*"
-        onChange={(e) => {
-          if (e.target.files) {
-            setFile(e.target.files[0]);
-            setTranscript(null);
-          }
-        }}
-      />
-      <button onClick={handleUpload} disabled={!file || loading}>
-        {loading ? '文字起こし中...' : '文字起こし開始'}
-      </button>
-      {transcript ? (
-        <div>
-          <h3>文字起こし結果：</h3>
-          <textarea value={transcript} readOnly className="transcript-area" />
-          <br /><br />
-          <button onClick={() => handleDownload('txt')}>.txtとしてダウンロード</button>
-          <button onClick={() => handleDownload('json')}>.jsonとしてダウンロード</button>
-        </div>
-      ) : (!loading && file && (
-        <p>文字起こし結果が取得できませんでした。</p>
-      ))}
-    </div>
-  );
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #e6f0ff; /* 薄いブルー背景 */
+  color: #003366; /* 濃いブルー文字 */
+  font-family: 'Helvetica Neue', sans-serif;
 }
 
-export default App;
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #ffffff;
+  border: 1px solid #99ccff;
+  box-shadow: 0 0 10px rgba(0, 102, 204, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+button {
+  background-color: #3399ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #267acc;
+}
