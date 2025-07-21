@@ -3,16 +3,12 @@ services:
     name: whisper-backend
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: cd backend && pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    build:
-      cwd: backend
 
   - type: web
     name: whisper-frontend
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: cd frontend && npm install
     startCommand: npm run dev
-    build:
-      cwd: frontend
