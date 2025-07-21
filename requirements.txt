@@ -1,0 +1,6 @@
+fastapi==0.109.2
+uvicorn
+pydantic==1.10.13
+nicegui==1.4.17
+python-dotenv
+openai-whisper @ git+https://github.com/openai/whisper.git@517a43ecd132a2089d85f4ebc044728a71d49f6e
