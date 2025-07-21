@@ -3,7 +3,7 @@ services:
     name: whisper-backend
     env: python
     plan: free
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: pip install -r requirements.txt
     build:
       cwd: backend
 
