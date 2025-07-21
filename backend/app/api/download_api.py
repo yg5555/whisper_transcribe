@@ -1,15 +1,22 @@
 from fastapi import APIRouter
 from pathlib import Path
+from fastapi.responses import FileResponse
 import tempfile
 
 router = APIRouter()
 
-@router.get("/audio-files")
-def get_audio_files():
+@router.get("/download/txt/{file_id}")
+async def download_txt(file_id: str):
     temp_dir = Path(tempfile.gettempdir())
-    audio_files = sorted(temp_dir.glob("*.m4a"), key=lambda f: f.stat().st_mtime, reverse=True)
-    return {
-        "audio_files": [str(f) for f in audio_files],
-        "text_path": str(temp_dir / "result.txt"),
-        "json_path": str(temp_dir / "result.json")
-    }
+    path = temp_dir / f"{file_id}_result.txt"
+    if not path.exists():
+        return {"error": "Text result not found."}
+    return FileResponse(path, media_type="text/plain", filename="result.txt")
+
+@router.get("/download/json/{file_id}")
+async def download_json(file_id: str):
+    temp_dir = Path(tempfile.gettempdir())
+    path = temp_dir / f"{file_id}_result.json"
+    if not path.exists():
+        return {"error": "JSON result not found."}
+    return FileResponse(path, media_type="application/json", filename="result.json")

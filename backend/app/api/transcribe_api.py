@@ -1,18 +1,36 @@
-from fastapi import APIRouter
+# app/api/transcribe_api.py
+
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from pathlib import Path
-import whisper
 import tempfile
+from app.core.transcribe_logic import transcribe_file, transcribe_latest_file
 
 router = APIRouter()
 
 @router.post("/transcribe")
-async def transcribe():
-    temp_dir = Path(tempfile.gettempdir())
-    audio_files = sorted(temp_dir.glob("*.m4a"), key=lambda f: f.stat().st_mtime, reverse=True)
-    if not audio_files:
-        return {"error": "No audio files found."}
-    model = whisper.load_model("base")
-    result = model.transcribe(str(audio_files[0]))
-    (temp_dir / "result.txt").write_text(result["text"], encoding="utf-8")
-    (temp_dir / "result.json").write_text(str(result), encoding="utf-8")
-    return {"text": result["text"], "json": result}
+async def transcribe(file: UploadFile = File(...)):
+    # 一時ファイルとして保存
+    suffix = Path(file.filename).suffix
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            contents = await file.read()
+            tmp.write(contents)
+            tmp_path = tmp.name
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ファイル保存エラー: {e}")
+
+    # ロジック関数で文字起こし
+    try:
+        text = transcribe_file(tmp_path)
+        return {"transcription": text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"文字起こし失敗: {e}")
+
+
+@router.post("/transcribe/latest")
+async def transcribe_latest():
+    try:
+        text = transcribe_latest_file()
+        return {"text": text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
