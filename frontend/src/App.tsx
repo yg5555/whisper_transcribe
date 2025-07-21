@@ -29,6 +29,19 @@ function App() {
     }
   };
 
+  const handleDownload = (ext: "txt" | "json") => {
+    const blob = new Blob(
+      [ext === "json" ? JSON.stringify({ transcription }, null, 2) : transcription],
+      { type: "text/plain" }
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `transcription.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="app-container">
       <h1 className="app-title">Whisper Transcriber</h1>
@@ -40,8 +53,8 @@ function App() {
         <div className="result-title">文字起こし結果：</div>
         <textarea className="result-text" rows={10} cols={40} readOnly value={transcription} />
         <div className="download-buttons">
-          <button className="download-button">.txtとしてダウンロード</button>
-          <button className="download-button">.jsonとしてダウンロード</button>
+          <button className="download-button" onClick={() => handleDownload("txt")}>.txtとしてダウンロード</button>
+          <button className="download-button" onClick={() => handleDownload("json")}>.jsonとしてダウンロード</button>
         </div>
       </div>
     </div>
