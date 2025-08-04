@@ -4,3 +4,9 @@ pydantic==1.10.13
 nicegui==1.4.17
 python-dotenv
 openai-whisper @ git+https://github.com/openai/whisper.git@517a43ecd132a2089d85f4ebc044728a71d49f6e
+
+# Notion連携用
+requests>=2.31.0
+markdown>=3.5.0
+beautifulsoup4>=4.12.0
+html2text>=2020.1.16

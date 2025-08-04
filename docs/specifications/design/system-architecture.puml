@@ -1,0 +1,43 @@
+@startuml System Architecture
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+
+package "Frontend" {
+  [React App] as frontend
+  [File Upload] as upload
+  [Result Display] as display
+}
+
+package "Backend API" {
+  [FastAPI Server] as api
+  [Upload Handler] as upload_handler
+  [Transcribe Service] as transcribe_service
+  [File Manager] as file_manager
+}
+
+package "Core Logic" {
+  [Whisper Model] as whisper
+  [Audio Preprocessor] as preprocessor
+  [Text Processor] as text_processor
+}
+
+package "Storage" {
+  [Audio Files] as audio_storage
+  [Results] as result_storage
+  [Logs] as log_storage
+}
+
+frontend --> api : HTTP/HTTPS
+upload --> upload_handler : File Upload
+upload_handler --> file_manager : Save File
+file_manager --> audio_storage : Store
+api --> transcribe_service : Process Request
+transcribe_service --> preprocessor : Preprocess
+preprocessor --> whisper : Transcribe
+whisper --> text_processor : Process Text
+text_processor --> result_storage : Save Result
+transcribe_service --> display : Return Result
+display --> frontend : Show Result
+
+@enduml 
