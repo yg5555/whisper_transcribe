@@ -3,7 +3,51 @@
 ## 概要
 Renderでのデプロイ時に発生する一般的な問題とその解決策を説明します。
 
-## 1. メモリ不足エラー
+## 1. FastAPIインポートエラー
+
+### 問題
+```
+ImportError: cannot import name 'StaticFiles' from 'fastapi'
+```
+
+### 原因
+- FastAPIのバージョンによって`StaticFiles`のインポート場所が変更
+- 古いバージョンでは`fastapi.staticfiles`からインポートする必要がある
+
+### 解決策
+
+#### 1.1 正しいインポート方法
+```python
+# 誤ったインポート
+from fastapi import FastAPI, StaticFiles
+
+# 正しいインポート
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+```
+
+#### 1.2 バージョン固定
+```txt
+# requirements.txt
+fastapi==0.109.2
+aiofiles>=0.8.0
+```
+
+#### 1.3 フォールバック機能
+```python
+# 静的ファイル配信の設定
+frontend_build_path = Path("../frontend/dist")
+if frontend_build_path.exists():
+    try:
+        app.mount("/", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
+        print(f"静的ファイル配信を有効化: {frontend_build_path}")
+    except Exception as e:
+        print(f"静的ファイル配信の設定エラー: {e}")
+else:
+    print(f"警告: フロントエンドビルドディレクトリが見つかりません: {frontend_build_path}")
+```
+
+## 2. メモリ不足エラー
 
 ### 問題
 ```
@@ -17,19 +61,19 @@ Renderでのデプロイ時に発生する一般的な問題とその解決策�
 
 ### 解決策
 
-#### 1.1 Node.jsメモリ制限の設定
+#### 2.1 Node.jsメモリ制限の設定
 ```bash
 # メモリ制限を256MBに設定
 export NODE_OPTIONS="--max-old-space-size=256"
 ```
 
-#### 1.2 npm設定の最適化
+#### 2.2 npm設定の最適化
 ```bash
 # メモリ効率化されたインストール
 npm install --no-optional --no-audit --no-fund --production=false
 ```
 
-#### 1.3 段階的インストール
+#### 2.3 段階的インストール
 ```bash
 # 1. コア依存関係のみ
 npm install react react-dom
@@ -41,7 +85,7 @@ npm install --save-dev @vitejs/plugin-react vite typescript
 npm install
 ```
 
-#### 1.4 Vite設定の最適化
+#### 2.4 Vite設定の最適化
 ```typescript
 // vite.config.ts
 export default defineConfig({
@@ -56,7 +100,7 @@ export default defineConfig({
 })
 ```
 
-## 2. Rollup依存関係エラー
+## 3. Rollup依存関係エラー
 
 ### 問題
 ```
@@ -70,7 +114,7 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 
 ### 解決策
 
-#### 2.1 package.jsonの更新
+#### 3.1 package.jsonの更新
 ```json
 {
   "scripts": {
@@ -97,7 +141,7 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 }
 ```
 
-#### 2.2 .npmrcファイルの作成
+#### 3.2 .npmrcファイルの作成
 ```
 platform=linux
 arch=x64
@@ -117,7 +161,7 @@ fetch-retry-mintimeout=10000
 fetch-retry-maxtimeout=60000
 ```
 
-#### 2.3 最適化されたビルドスクリプト
+#### 3.3 最適化されたビルドスクリプト
 ```bash
 #!/bin/bash
 # メモリ効率化されたビルドスクリプト
@@ -158,7 +202,7 @@ NODE_OPTIONS="--max-old-space-size=256" npm run build
 echo "=== メモリ効率化ビルド完了 ==="
 ```
 
-## 3. 本番環境での起動問題
+## 4. 本番環境での起動問題
 
 ### 問題
 - 開発サーバーが本番環境で起動しようとする
@@ -167,7 +211,7 @@ echo "=== メモリ効率化ビルド完了 ==="
 
 ### 解決策
 
-#### 3.1 start.shの更新
+#### 4.1 start.shの更新
 ```bash
 #!/bin/bash
 
@@ -186,6 +230,14 @@ echo "=== 最適化されたビルドスクリプトを実行 ==="
 chmod +x build-optimized.sh
 ./build-optimized.sh
 
+# ビルド結果を確認
+if [ -d "dist" ]; then
+    echo "=== フロントエンドビルド成功 ==="
+    ls -la dist/
+else
+    echo "=== フロントエンドビルド失敗 - APIのみモードで起動 ==="
+fi
+
 # バックエンドディレクトリに移動
 cd ../backend
 
@@ -193,12 +245,18 @@ cd ../backend
 echo "=== バックエンド依存関係インストール ==="
 pip install -r requirements.txt
 
-# バックエンドサーバーを起動
-echo "=== バックエンドサーバー起動 ==="
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+# 静的ファイルの存在確認
+frontend_dist_path="../frontend/dist"
+if [ -d "$frontend_dist_path" ]; then
+    echo "=== フロントエンド + バックエンドモードで起動 ==="
+    uvicorn app.main:app --host 0.0.0.0 --port 8000
+else
+    echo "=== APIのみモードで起動 ==="
+    uvicorn app.main_fallback:app --host 0.0.0.0 --port 8000
+fi
 ```
 
-#### 3.2 render.yamlの更新
+#### 4.2 render.yamlの更新
 ```yaml
 services:
   - type: web
@@ -229,11 +287,12 @@ services:
         value: "--max-old-space-size=256"
 ```
 
-## 4. 静的ファイル配信の設定
+## 5. 静的ファイル配信の設定
 
-### 4.1 バックエンドでの静的ファイル配信
+### 5.1 バックエンドでの静的ファイル配信
 ```python
-from fastapi import FastAPI, StaticFiles
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 app = FastAPI()
@@ -241,25 +300,29 @@ app = FastAPI()
 # 静的ファイル配信（フロントエンドのビルド結果）
 frontend_build_path = Path("../frontend/dist")
 if frontend_build_path.exists():
-    app.mount("/", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
+    try:
+        app.mount("/", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
+        print(f"静的ファイル配信を有効化: {frontend_build_path}")
+    except Exception as e:
+        print(f"静的ファイル配信の設定エラー: {e}")
 ```
 
-### 4.2 フロントエンドのAPIエンドポイント設定
+### 5.2 フロントエンドのAPIエンドポイント設定
 ```typescript
 // 本番環境では相対パスを使用
 const apiUrl = import.meta.env.PROD ? '/api/transcribe' : 'http://localhost:8000/api/transcribe';
 ```
 
-## 5. デバッグ方法
+## 6. デバッグ方法
 
-### 5.1 ログの確認
+### 6.1 ログの確認
 ```bash
 # Renderダッシュボードでログを確認
 # または、ローカルでテスト
 npm run build
 ```
 
-### 5.2 ローカルテスト
+### 6.2 ローカルテスト
 ```bash
 # フロントエンド
 cd frontend
@@ -272,27 +335,27 @@ pip install -r requirements.txt
 python app/main.py
 ```
 
-## 6. 予防策
+## 7. 予防策
 
-### 6.1 依存関係の管理
+### 7.1 依存関係の管理
 - 定期的に`npm audit`を実行
 - 依存関係のバージョンを固定
 - セキュリティアップデートを適用
 
-### 6.2 ビルドテスト
+### 7.2 ビルドテスト
 - プルリクエスト時に自動ビルドテスト
 - 複数のNode.jsバージョンでテスト
 - 本番環境に近い環境でテスト
 
-## 7. よくある問題と解決策
+## 8. よくある問題と解決策
 
-### 7.1 メモリ不足
+### 8.1 メモリ不足
 ```bash
 # Node.jsのメモリ制限を増やす
 export NODE_OPTIONS="--max-old-space-size=256"
 ```
 
-### 7.2 タイムアウト
+### 8.2 タイムアウト
 ```yaml
 # render.yaml
 buildCommand: |
@@ -302,22 +365,22 @@ buildCommand: |
   '
 ```
 
-### 7.3 権限エラー
+### 8.3 権限エラー
 ```bash
 # 実行権限を付与
 chmod +x build.sh
 chmod +x start.sh
 ```
 
-## 8. 監視とアラート
+## 9. 監視とアラート
 
-### 8.1 エラー監視の設定
+### 9.1 エラー監視の設定
 ```bash
 # エラー監視スクリプトを使用
 python docs/specifications/scripts/error-log-sync.py "npm run build"
 ```
 
-### 8.2 通知設定
+### 9.2 通知設定
 - Renderの通知設定を有効化
 - Slackやメールでのアラート設定
 - エラー発生時の自動通知
@@ -326,4 +389,5 @@ python docs/specifications/scripts/error-log-sync.py "npm run build"
 - 2024-01-XX: 初版作成
 - 2024-01-XX: Rollup依存関係問題の解決策を追加
 - 2024-01-XX: 本番環境での静的ファイル配信設定を追加
-- 2024-01-XX: メモリ不足問題の解決策を追加 
+- 2024-01-XX: メモリ不足問題の解決策を追加
+- 2024-01-XX: FastAPIインポート問題の解決策を追加 
