@@ -3,7 +3,60 @@
 ## 概要
 Renderでのデプロイ時に発生する一般的な問題とその解決策を説明します。
 
-## 1. Rollup依存関係エラー
+## 1. メモリ不足エラー
+
+### 問題
+```
+==> Out of memory (used over 512Mi)
+```
+
+### 原因
+- Render無料プランの512MBメモリ制限
+- npm installやビルドプロセスでの大量メモリ使用
+- Node.jsのデフォルトメモリ設定
+
+### 解決策
+
+#### 1.1 Node.jsメモリ制限の設定
+```bash
+# メモリ制限を256MBに設定
+export NODE_OPTIONS="--max-old-space-size=256"
+```
+
+#### 1.2 npm設定の最適化
+```bash
+# メモリ効率化されたインストール
+npm install --no-optional --no-audit --no-fund --production=false
+```
+
+#### 1.3 段階的インストール
+```bash
+# 1. コア依存関係のみ
+npm install react react-dom
+
+# 2. 開発依存関係
+npm install --save-dev @vitejs/plugin-react vite typescript
+
+# 3. 残りの依存関係
+npm install
+```
+
+#### 1.4 Vite設定の最適化
+```typescript
+// vite.config.ts
+export default defineConfig({
+  build: {
+    // メモリ効率化
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false
+  },
+  esbuild: {
+    target: 'es2015'
+  }
+})
+```
+
+## 2. Rollup依存関係エラー
 
 ### 問題
 ```
@@ -17,11 +70,10 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 
 ### 解決策
 
-#### 1.1 package.jsonの更新
+#### 2.1 package.jsonの更新
 ```json
 {
   "scripts": {
-    "postinstall": "npm rebuild",
     "clean": "rm -rf node_modules package-lock.json dist",
     "reinstall": "npm run clean && npm install"
   },
@@ -45,7 +97,7 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 }
 ```
 
-#### 1.2 .npmrcファイルの作成
+#### 2.2 .npmrcファイルの作成
 ```
 platform=linux
 arch=x64
@@ -58,14 +110,23 @@ strict-peer-dependencies=false
 target_platform=linux
 target_arch=x64
 target_libc=glibc
+# メモリ効率化
+maxsockets=1
+fetch-retries=3
+fetch-retry-mintimeout=10000
+fetch-retry-maxtimeout=60000
 ```
 
-#### 1.3 ビルドスクリプトの使用
+#### 2.3 最適化されたビルドスクリプト
 ```bash
 #!/bin/bash
+# メモリ効率化されたビルドスクリプト
 set -e
 
-echo "=== フロントエンドビルド開始 ==="
+echo "=== メモリ効率化ビルド開始 ==="
+
+# メモリ制限を設定
+export NODE_OPTIONS="--max-old-space-size=256"
 
 # 既存の依存関係をクリーンアップ
 echo "=== 依存関係クリーンアップ ==="
@@ -75,16 +136,29 @@ rm -rf node_modules package-lock.json
 echo "=== npmキャッシュクリア ==="
 npm cache clean --force
 
-# 依存関係を再インストール
-echo "=== 依存関係インストール ==="
-npm install --platform=linux --arch=x64 --production=false
+# 依存関係を段階的にインストール
+echo "=== 依存関係を段階的にインストール ==="
 
-# ビルドを実行
+# 1. コア依存関係のみインストール
+echo "ステップ1: コア依存関係"
+npm install --platform=linux --arch=x64 --no-optional --no-audit --no-fund --production=false react react-dom
+
+# 2. 開発依存関係をインストール
+echo "ステップ2: 開発依存関係"
+npm install --platform=linux --arch=x64 --no-optional --no-audit --no-fund --save-dev @vitejs/plugin-react vite typescript
+
+# 3. 残りの依存関係をインストール
+echo "ステップ3: 残りの依存関係"
+npm install --platform=linux --arch=x64 --no-optional --no-audit --no-fund --production=false
+
+# ビルドを実行（メモリ制限付き）
 echo "=== ビルド実行 ==="
-npm run build
+NODE_OPTIONS="--max-old-space-size=256" npm run build
+
+echo "=== メモリ効率化ビルド完了 ==="
 ```
 
-## 2. 本番環境での起動問題
+## 3. 本番環境での起動問題
 
 ### 問題
 - 開発サーバーが本番環境で起動しようとする
@@ -93,7 +167,7 @@ npm run build
 
 ### 解決策
 
-#### 2.1 start.shの更新
+#### 3.1 start.shの更新
 ```bash
 #!/bin/bash
 
@@ -101,26 +175,16 @@ echo "=== Whisper Transcribe 起動開始 ==="
 
 # 環境変数の設定
 export PYTHONPATH=./backend
+export NODE_OPTIONS="--max-old-space-size=256"
 
 # フロントエンドのビルド（静的ファイル生成）
 echo "=== フロントエンドビルド開始 ==="
 cd frontend
 
-# 既存の依存関係をクリーンアップ
-echo "=== 依存関係クリーンアップ ==="
-rm -rf node_modules package-lock.json
-
-# npmキャッシュをクリア
-echo "=== npmキャッシュクリア ==="
-npm cache clean --force
-
-# 依存関係を再インストール
-echo "=== 依存関係インストール ==="
-npm install --platform=linux --arch=x64 --production=false
-
-# ビルドを実行
-echo "=== ビルド実行 ==="
-npm run build
+# 最適化されたビルドスクリプトを使用
+echo "=== 最適化されたビルドスクリプトを実行 ==="
+chmod +x build-optimized.sh
+./build-optimized.sh
 
 # バックエンドディレクトリに移動
 cd ../backend
@@ -134,7 +198,7 @@ echo "=== バックエンドサーバー起動 ==="
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-#### 2.2 render.yamlの更新
+#### 3.2 render.yamlの更新
 ```yaml
 services:
   - type: web
@@ -147,19 +211,8 @@ services:
       echo "npm バージョン: $(npm --version)"
       echo "Python バージョン: $(python --version)"
       
-      # フロントエンドビルド
-      cd frontend
-      echo "=== フロントエンド依存関係クリーンアップ ==="
-      rm -rf node_modules package-lock.json
-      
-      echo "=== フロントエンド依存関係インストール ==="
-      npm install --platform=linux --arch=x64 --production=false
-      
-      echo "=== フロントエンドビルド ==="
-      npm run build
-      
       # バックエンド依存関係インストール
-      cd ../backend
+      cd backend
       echo "=== バックエンド依存関係インストール ==="
       pip install -r requirements.txt
       
@@ -172,11 +225,13 @@ services:
         value: 18.19.0
       - key: PORT
         value: 8000
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=256"
 ```
 
-## 3. 静的ファイル配信の設定
+## 4. 静的ファイル配信の設定
 
-### 3.1 バックエンドでの静的ファイル配信
+### 4.1 バックエンドでの静的ファイル配信
 ```python
 from fastapi import FastAPI, StaticFiles
 from pathlib import Path
@@ -189,38 +244,10 @@ if frontend_build_path.exists():
     app.mount("/", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
 ```
 
-### 3.2 フロントエンドのAPIエンドポイント設定
+### 4.2 フロントエンドのAPIエンドポイント設定
 ```typescript
 // 本番環境では相対パスを使用
 const apiUrl = import.meta.env.PROD ? '/api/transcribe' : 'http://localhost:8000/api/transcribe';
-```
-
-## 4. Vite設定の最適化
-
-```typescript
-// vite.config.ts
-export default defineConfig({
-  build: {
-    rollupOptions: {
-      external: [],
-      output: {
-        manualChunks: undefined
-      }
-    },
-    target: 'es2015',
-    minify: 'terser',
-    commonjsOptions: {
-      include: []
-    }
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom'],
-    exclude: ['@rollup/rollup-linux-x64-gnu']
-  },
-  define: {
-    global: 'globalThis'
-  }
-})
 ```
 
 ## 5. デバッグ方法
@@ -262,7 +289,7 @@ python app/main.py
 ### 7.1 メモリ不足
 ```bash
 # Node.jsのメモリ制限を増やす
-export NODE_OPTIONS="--max-old-space-size=4096"
+export NODE_OPTIONS="--max-old-space-size=256"
 ```
 
 ### 7.2 タイムアウト
@@ -298,4 +325,5 @@ python docs/specifications/scripts/error-log-sync.py "npm run build"
 ## 更新履歴
 - 2024-01-XX: 初版作成
 - 2024-01-XX: Rollup依存関係問題の解決策を追加
-- 2024-01-XX: 本番環境での静的ファイル配信設定を追加 
+- 2024-01-XX: 本番環境での静的ファイル配信設定を追加
+- 2024-01-XX: メモリ不足問題の解決策を追加 

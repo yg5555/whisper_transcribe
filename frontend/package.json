@@ -8,7 +8,6 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "npm rebuild",
     "clean": "rm -rf node_modules package-lock.json dist",
     "reinstall": "npm run clean && npm install"
   },

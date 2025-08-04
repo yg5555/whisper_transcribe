@@ -4,26 +4,16 @@ echo "=== Whisper Transcribe 起動開始 ==="
 
 # 環境変数の設定
 export PYTHONPATH=./backend
+export NODE_OPTIONS="--max-old-space-size=256"
 
 # フロントエンドのビルド（静的ファイル生成）
 echo "=== フロントエンドビルド開始 ==="
 cd frontend
 
-# 既存の依存関係をクリーンアップ
-echo "=== 依存関係クリーンアップ ==="
-rm -rf node_modules package-lock.json
-
-# npmキャッシュをクリア
-echo "=== npmキャッシュクリア ==="
-npm cache clean --force
-
-# 依存関係を再インストール
-echo "=== 依存関係インストール ==="
-npm install --platform=linux --arch=x64 --production=false
-
-# ビルドを実行
-echo "=== ビルド実行 ==="
-npm run build
+# 最適化されたビルドスクリプトを使用
+echo "=== 最適化されたビルドスクリプトを実行 ==="
+chmod +x build-optimized.sh
+./build-optimized.sh
 
 # バックエンドディレクトリに移動
 cd ../backend

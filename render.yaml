@@ -9,19 +9,8 @@ services:
       echo "npm バージョン: $(npm --version)"
       echo "Python バージョン: $(python --version)"
       
-      # フロントエンドビルド
-      cd frontend
-      echo "=== フロントエンド依存関係クリーンアップ ==="
-      rm -rf node_modules package-lock.json
-      
-      echo "=== フロントエンド依存関係インストール ==="
-      npm install --platform=linux --arch=x64 --production=false
-      
-      echo "=== フロントエンドビルド ==="
-      npm run build
-      
       # バックエンド依存関係インストール
-      cd ../backend
+      cd backend
       echo "=== バックエンド依存関係インストール ==="
       pip install -r requirements.txt
       
@@ -34,3 +23,5 @@ services:
         value: 18.19.0
       - key: PORT
         value: 8000
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=256"

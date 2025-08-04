@@ -16,7 +16,10 @@ export default defineConfig({
     // Rollupのネイティブモジュールを無効化
     commonjsOptions: {
       include: []
-    }
+    },
+    // メモリ効率化
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false
   },
   optimizeDeps: {
     include: ['react', 'react-dom'],
@@ -29,5 +32,9 @@ export default defineConfig({
   // 開発時の設定
   define: {
     global: 'globalThis'
+  },
+  // メモリ効率化
+  esbuild: {
+    target: 'es2015'
   }
 })
