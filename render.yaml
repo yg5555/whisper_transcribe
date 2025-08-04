@@ -1,14 +1,15 @@
 services:
   - type: web
-    name: whisper-backend
+    name: whisper-transcribe
     env: python
     plan: free
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-  - type: web
-    name: whisper-frontend
-    env: node
-    plan: free
-    buildCommand: cd frontend && npm install
-    startCommand: npm run dev
+    buildCommand: |
+      cd frontend && chmod +x build.sh && ./build.sh
+      cd ../backend && pip install -r requirements.txt
+    startCommand: |
+      cd backend && python app/main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: NODE_VERSION
+        value: 18.19.0

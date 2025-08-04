@@ -37,3 +37,20 @@ python docs/specifications/scripts/notion-export-converter.py
 ```
 
 詳細は[セットアップガイド](./specifications/scripts/notion-setup.md)を参照してください。
+
+## エラー監視・同期
+
+### 手動エラー同期
+```bash
+# コマンドを実行してエラーを同期
+python docs/specifications/scripts/error-log-sync.py "python app/main.py"
+```
+
+### リアルタイム監視
+```bash
+# リアルタイムでエラーを監視
+python docs/specifications/scripts/realtime-error-monitor.py "python app/main.py"
+```
+
+### エラーデータベース設定
+詳細は[エラーデータベース設定ガイド](./specifications/scripts/error-database-setup.md)を参照してください。
