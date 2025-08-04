@@ -21,15 +21,26 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 ```json
 {
   "scripts": {
-    "postinstall": "npm rebuild"
+    "postinstall": "npm rebuild",
+    "clean": "rm -rf node_modules package-lock.json dist",
+    "reinstall": "npm run clean && npm install"
   },
   "overrides": {
     "rollup": {
       "@rollup/rollup-linux-x64-gnu": "4.9.5"
+    },
+    "vite": {
+      "rollup": {
+        "@rollup/rollup-linux-x64-gnu": "4.9.5"
+      }
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0 <23.0.0",
+    "npm": ">=8.0.0"
+  },
+  "resolutions": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }
 ```
@@ -42,6 +53,11 @@ optional=false
 registry=https://registry.npmjs.org/
 cache=.npm-cache
 loglevel=warn
+legacy-peer-deps=true
+strict-peer-dependencies=false
+target_platform=linux
+target_arch=x64
+target_libc=glibc
 ```
 
 #### 1.3 ビルドスクリプトの使用
@@ -49,36 +65,138 @@ loglevel=warn
 #!/bin/bash
 set -e
 
+echo "=== フロントエンドビルド開始 ==="
+
 # 既存の依存関係をクリーンアップ
+echo "=== 依存関係クリーンアップ ==="
 rm -rf node_modules package-lock.json
 
 # npmキャッシュをクリア
+echo "=== npmキャッシュクリア ==="
 npm cache clean --force
 
 # 依存関係を再インストール
-npm install --platform=linux --arch=x64
+echo "=== 依存関係インストール ==="
+npm install --platform=linux --arch=x64 --production=false
 
 # ビルドを実行
+echo "=== ビルド実行 ==="
 npm run build
 ```
 
-## 2. Node.jsバージョン問題
+## 2. 本番環境での起動問題
 
 ### 問題
-- Node.js v22.14.0での互換性問題
-- 古いバージョンでの機能不足
+- 開発サーバーが本番環境で起動しようとする
+- 静的ファイルが配信されない
+- ポートが正しく設定されていない
 
 ### 解決策
-```yaml
-# render.yaml
-envVars:
-  - key: NODE_VERSION
-    value: 18.19.0
+
+#### 2.1 start.shの更新
+```bash
+#!/bin/bash
+
+echo "=== Whisper Transcribe 起動開始 ==="
+
+# 環境変数の設定
+export PYTHONPATH=./backend
+
+# フロントエンドのビルド（静的ファイル生成）
+echo "=== フロントエンドビルド開始 ==="
+cd frontend
+
+# 既存の依存関係をクリーンアップ
+echo "=== 依存関係クリーンアップ ==="
+rm -rf node_modules package-lock.json
+
+# npmキャッシュをクリア
+echo "=== npmキャッシュクリア ==="
+npm cache clean --force
+
+# 依存関係を再インストール
+echo "=== 依存関係インストール ==="
+npm install --platform=linux --arch=x64 --production=false
+
+# ビルドを実行
+echo "=== ビルド実行 ==="
+npm run build
+
+# バックエンドディレクトリに移動
+cd ../backend
+
+# バックエンドの依存関係をインストール
+echo "=== バックエンド依存関係インストール ==="
+pip install -r requirements.txt
+
+# バックエンドサーバーを起動
+echo "=== バックエンドサーバー起動 ==="
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-## 3. ビルドプロセス最適化
+#### 2.2 render.yamlの更新
+```yaml
+services:
+  - type: web
+    name: whisper-transcribe
+    env: python
+    plan: free
+    buildCommand: |
+      echo "=== ビルド開始 ==="
+      echo "Node.js バージョン: $(node --version)"
+      echo "npm バージョン: $(npm --version)"
+      echo "Python バージョン: $(python --version)"
+      
+      # フロントエンドビルド
+      cd frontend
+      echo "=== フロントエンド依存関係クリーンアップ ==="
+      rm -rf node_modules package-lock.json
+      
+      echo "=== フロントエンド依存関係インストール ==="
+      npm install --platform=linux --arch=x64 --production=false
+      
+      echo "=== フロントエンドビルド ==="
+      npm run build
+      
+      # バックエンド依存関係インストール
+      cd ../backend
+      echo "=== バックエンド依存関係インストール ==="
+      pip install -r requirements.txt
+      
+      echo "=== ビルド完了 ==="
+    startCommand: bash start.sh
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: NODE_VERSION
+        value: 18.19.0
+      - key: PORT
+        value: 8000
+```
 
-### 3.1 Vite設定の調整
+## 3. 静的ファイル配信の設定
+
+### 3.1 バックエンドでの静的ファイル配信
+```python
+from fastapi import FastAPI, StaticFiles
+from pathlib import Path
+
+app = FastAPI()
+
+# 静的ファイル配信（フロントエンドのビルド結果）
+frontend_build_path = Path("../frontend/dist")
+if frontend_build_path.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
+```
+
+### 3.2 フロントエンドのAPIエンドポイント設定
+```typescript
+// 本番環境では相対パスを使用
+const apiUrl = import.meta.env.PROD ? '/api/transcribe' : 'http://localhost:8000/api/transcribe';
+```
+
+## 4. Vite設定の最適化
+
 ```typescript
 // vite.config.ts
 export default defineConfig({
@@ -90,39 +208,20 @@ export default defineConfig({
       }
     },
     target: 'es2015',
-    minify: 'terser'
+    minify: 'terser',
+    commonjsOptions: {
+      include: []
+    }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom']
+    include: ['react', 'react-dom'],
+    exclude: ['@rollup/rollup-linux-x64-gnu']
+  },
+  define: {
+    global: 'globalThis'
   }
 })
 ```
-
-### 3.2 ビルドコマンドの改善
-```yaml
-# render.yaml
-buildCommand: |
-  cd frontend && chmod +x build.sh && ./build.sh
-  cd ../backend && pip install -r requirements.txt
-```
-
-## 4. 環境変数の設定
-
-### 4.1 必要な環境変数
-```bash
-# フロントエンド
-NODE_ENV=production
-VITE_API_URL=https://your-backend-url.com
-
-# バックエンド
-PYTHON_VERSION=3.11.0
-NODE_VERSION=18.19.0
-```
-
-### 4.2 Renderでの設定方法
-1. Renderダッシュボードでプロジェクトを開く
-2. "Environment"タブを選択
-3. 必要な環境変数を追加
 
 ## 5. デバッグ方法
 
@@ -171,7 +270,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 # render.yaml
 buildCommand: |
   timeout 600 bash -c '
-    cd frontend && chmod +x build.sh && ./build.sh
+    cd frontend && npm install && npm run build
     cd ../backend && pip install -r requirements.txt
   '
 ```
@@ -197,4 +296,6 @@ python docs/specifications/scripts/error-log-sync.py "npm run build"
 - エラー発生時の自動通知
 
 ## 更新履歴
-- 2024-01-XX: 初版作成 
+- 2024-01-XX: 初版作成
+- 2024-01-XX: Rollup依存関係問題の解決策を追加
+- 2024-01-XX: 本番環境での静的ファイル配信設定を追加 

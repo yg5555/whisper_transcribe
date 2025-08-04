@@ -12,13 +12,22 @@ export default defineConfig({
       }
     },
     target: 'es2015',
-    minify: 'terser'
+    minify: 'terser',
+    // Rollupのネイティブモジュールを無効化
+    commonjsOptions: {
+      include: []
+    }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom']
+    include: ['react', 'react-dom'],
+    exclude: ['@rollup/rollup-linux-x64-gnu']
   },
   server: {
     host: '0.0.0.0',
     port: 3000
+  },
+  // 開発時の設定
+  define: {
+    global: 'globalThis'
   }
 })

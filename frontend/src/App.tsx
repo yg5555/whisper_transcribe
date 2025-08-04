@@ -12,7 +12,10 @@ function App() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:8000/transcribe", {
+      // 本番環境では相対パスを使用
+      const apiUrl = import.meta.env.PROD ? '/api/transcribe' : 'http://localhost:8000/api/transcribe';
+      
+      const response = await fetch(apiUrl, {
         method: "POST",
         body: formData,
       });

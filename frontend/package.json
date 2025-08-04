@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "npm rebuild"
+    "postinstall": "npm rebuild",
+    "clean": "rm -rf node_modules package-lock.json dist",
+    "reinstall": "npm run clean && npm install"
   },
   "dependencies": {
     "axios": "^1.10.0",
@@ -32,9 +34,18 @@
   "overrides": {
     "rollup": {
       "@rollup/rollup-linux-x64-gnu": "4.9.5"
+    },
+    "vite": {
+      "rollup": {
+        "@rollup/rollup-linux-x64-gnu": "4.9.5"
+      }
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0 <23.0.0",
+    "npm": ">=8.0.0"
+  },
+  "resolutions": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }
