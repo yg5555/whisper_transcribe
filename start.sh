@@ -19,8 +19,10 @@ chmod +x build-optimized.sh
 if [ -d "dist" ]; then
     echo "=== フロントエンドビルド成功 ==="
     ls -la dist/
+    FRONTEND_AVAILABLE=true
 else
     echo "=== フロントエンドビルド失敗 - APIのみモードで起動 ==="
+    FRONTEND_AVAILABLE=false
 fi
 
 # バックエンドディレクトリに移動
@@ -32,10 +34,12 @@ pip install -r requirements.txt
 
 # 静的ファイルの存在確認
 frontend_dist_path="../frontend/dist"
-if [ -d "$frontend_dist_path" ]; then
+if [ -d "$frontend_dist_path" ] && [ "$FRONTEND_AVAILABLE" = true ]; then
     echo "=== フロントエンド + バックエンドモードで起動 ==="
-    uvicorn app.main:app --host 0.0.0.0 --port 8000
+    echo "=== ポート: $PORT ==="
+    uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --timeout-keep-alive 75
 else
     echo "=== APIのみモードで起動 ==="
-    uvicorn app.main_fallback:app --host 0.0.0.0 --port 8000
+    echo "=== ポート: $PORT ==="
+    uvicorn app.main_fallback:app --host 0.0.0.0 --port ${PORT:-8000} --timeout-keep-alive 75
 fi

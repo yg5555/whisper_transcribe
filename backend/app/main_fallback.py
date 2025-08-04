@@ -30,12 +30,18 @@ async def root():
     return {
         "message": "Whisper Transcribe API", 
         "version": "1.0.0",
-        "status": "API only mode - frontend not available"
+        "status": "API only mode - frontend not available",
+        "endpoints": {
+            "health": "/health",
+            "api_health": "/api/health",
+            "docs": "/docs"
+        }
     }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": "1.0.0"}
+    """Root health endpoint for Render health checks"""
+    return {"status": "healthy", "version": "1.0.0", "mode": "api_only"}
 
 if __name__ == "__main__":
     import uvicorn

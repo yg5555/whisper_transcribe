@@ -16,6 +16,7 @@ services:
       
       echo "=== ビルド完了 ==="
     startCommand: bash start.sh
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
