@@ -32,3 +32,66 @@ button {
 button:hover {
   background-color: #267acc;
 }
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f0f8ff;
+  border-radius: 5px;
+  border: 1px solid #99ccff;
+}
+
+.health-check-button {
+  background-color: #28a745;
+  font-size: 0.9em;
+  padding: 8px 15px;
+}
+
+.health-check-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.upload-section {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.result-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.result-text {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px;
+  border: 1px solid #99ccff;
+  border-radius: 5px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.download-buttons {
+  margin-top: 15px;
+}
+
+.download-button {
+  background-color: #17a2b8;
+  margin: 5px;
+}
+
+.download-button:hover:not(:disabled) {
+  background-color: #138496;
+}
