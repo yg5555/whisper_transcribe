@@ -17,12 +17,13 @@
 13 silly config load:file:/opt/homebrew/etc/npmrc
 14 verbose title npm run build
 15 verbose argv "run" "build"
-16 verbose logfile logs-max:10 dir:/Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T10_26_50_572Z-
-17 verbose logfile /Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T10_26_50_572Z-debug-0.log
-18 silly logfile done cleaning log files
-19 verbose cwd /Users/yg/projects/whisper_transcribe/frontend
-20 verbose os Darwin 24.5.0
-21 verbose node v24.3.0
-22 verbose npm  v11.4.2
-23 verbose exit 1
-24 verbose code 1
+16 verbose logfile logs-max:10 dir:/Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T23_21_41_390Z-
+17 verbose logfile /Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T23_21_41_390Z-debug-0.log
+18 silly logfile start cleaning logs, removing 1 files
+19 silly logfile done cleaning log files
+20 verbose cwd /Users/yg/projects/whisper_transcribe/frontend
+21 verbose os Darwin 24.5.0
+22 verbose node v24.3.0
+23 verbose npm  v11.4.2
+24 verbose exit 0
+25 info ok
