@@ -28,7 +28,8 @@ app.include_router(status_api.router, prefix="/api", tags=["status"])
 app.include_router(download_api.router, prefix="/api", tags=["download"])
 
 # 静的ファイル配信（フロントエンドのビルド結果）
-frontend_build_path = Path("../frontend/dist")
+# Render環境では ./static ディレクトリにコピーされている
+frontend_build_path = Path("./static")
 if frontend_build_path.exists():
     try:
         app.mount("/", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
@@ -37,6 +38,14 @@ if frontend_build_path.exists():
         print(f"静的ファイル配信の設定エラー: {e}")
 else:
     print(f"警告: フロントエンドビルドディレクトリが見つかりません: {frontend_build_path}")
+    # フォールバック: 相対パスも試行
+    fallback_path = Path("../frontend/dist")
+    if fallback_path.exists():
+        try:
+            app.mount("/", StaticFiles(directory=str(fallback_path), html=True), name="static")
+            print(f"フォールバック静的ファイル配信を有効化: {fallback_path}")
+        except Exception as e:
+            print(f"フォールバック静的ファイル配信の設定エラー: {e}")
 
 @app.get("/")
 async def root():
@@ -44,8 +53,11 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Root health endpoint for Render health checks"""
-    return {"status": "healthy", "version": "1.0.0", "mode": "full"}
+    return {"status": "ok", "message": "Whisper Transcribe API is running"}
+
+@app.get("/api/health")
+async def api_health_check():
+    return {"status": "ok", "message": "API endpoints are available"}
 
 if __name__ == "__main__":
     import uvicorn
