@@ -12,8 +12,9 @@ services:
       # フロントエンドをビルド（本番はビルド段階で作る）
       echo "=== フロントエンドビルド開始 ==="
       cd frontend
-      # NOTE: npm ci fails on Render due to platform-specific optional deps (rollup native binaries)
-      # falling outside the current lockfile. Use npm install to resolve appropriately on Linux.
+      # NOTE: npm has a known bug with optional deps (rollup native binaries) across platforms.
+      # Remove lockfile and node_modules, then install to resolve correct Linux binaries.
+      rm -rf node_modules package-lock.json
       npm install --no-audit --no-fund
       npm run build
 
