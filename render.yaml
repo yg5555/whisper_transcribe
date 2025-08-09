@@ -15,7 +15,9 @@ services:
       # NOTE: npm has a known bug with optional deps (rollup native binaries) across platforms.
       # Remove lockfile and node_modules, then install to resolve correct Linux binaries.
       rm -rf node_modules package-lock.json
-      npm install --no-audit --no-fund
+      # Ensure optional deps (e.g. Rollup native binaries) are installed on Linux
+      npm config set optional true
+      npm install --no-audit --no-fund --include=optional
       npm run build
 
       # バックエンド依存関係インストール
