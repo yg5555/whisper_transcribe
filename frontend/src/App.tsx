@@ -12,8 +12,10 @@ function App() {
     formData.append("file", file);
 
     try {
-      // 本番環境では相対パスを使用
-      const apiUrl = import.meta.env.PROD ? '/api/transcribe' : 'http://localhost:8000/api/transcribe';
+      // 別ドメインのバックエンドに対応: VITE_API_BASE を優先
+      const rawBase = (import.meta.env.VITE_API_BASE as string | undefined) || (import.meta.env.PROD ? '' : 'http://localhost:8000');
+      const base = rawBase.replace(/\/$/, ''); // 末尾スラッシュを除去
+      const apiUrl = `${base}/api/transcribe`;
       
       const response = await fetch(apiUrl, {
         method: "POST",
