@@ -1,0 +1,28 @@
+0 verbose cli /opt/homebrew/Cellar/node/24.3.0/bin/node /opt/homebrew/bin/npm
+1 info using npm@11.4.2
+2 info using node@v24.3.0
+3 silly config load:file:/opt/homebrew/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/yg/projects/whisper_transcribe/frontend/.npmrc
+5 warn Unknown project config "platform". This will stop working in the next major version of npm.
+6 warn Unknown project config "arch". This will stop working in the next major version of npm.
+7 warn config optional Use `--omit=optional` to exclude optional dependencies, or
+7 warn config `--include=optional` to include them.
+7 warn config
+7 warn config       Default value does install optional deps unless otherwise omitted.
+8 warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm.
+9 warn Unknown project config "target_platform". This will stop working in the next major version of npm.
+10 warn Unknown project config "target_arch". This will stop working in the next major version of npm.
+11 warn Unknown project config "target_libc". This will stop working in the next major version of npm.
+12 silly config load:file:/Users/yg/.npmrc
+13 silly config load:file:/opt/homebrew/etc/npmrc
+14 verbose title npm run build
+15 verbose argv "run" "build"
+16 verbose logfile logs-max:10 dir:/Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T10_26_20_518Z-
+17 verbose logfile /Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T10_26_20_518Z-debug-0.log
+18 silly logfile done cleaning log files
+19 verbose cwd /Users/yg/projects/whisper_transcribe/frontend
+20 verbose os Darwin 24.5.0
+21 verbose node v24.3.0
+22 verbose npm  v11.4.2
+23 verbose exit 2
+24 verbose code 2
