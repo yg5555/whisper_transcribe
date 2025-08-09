@@ -1,0 +1,268 @@
+0 verbose cli /opt/homebrew/Cellar/node/24.3.0/bin/node /opt/homebrew/bin/npm
+1 info using npm@11.4.2
+2 info using node@v24.3.0
+3 silly config load:file:/opt/homebrew/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/yg/projects/whisper_transcribe/frontend/.npmrc
+5 warn Unknown project config "platform". This will stop working in the next major version of npm.
+6 warn Unknown project config "arch". This will stop working in the next major version of npm.
+7 warn config optional Use `--omit=optional` to exclude optional dependencies, or
+7 warn config `--include=optional` to include them.
+7 warn config
+7 warn config       Default value does install optional deps unless otherwise omitted.
+8 warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm.
+9 warn Unknown project config "target_platform". This will stop working in the next major version of npm.
+10 warn Unknown project config "target_arch". This will stop working in the next major version of npm.
+11 warn Unknown project config "target_libc". This will stop working in the next major version of npm.
+12 silly config load:file:/Users/yg/.npmrc
+13 silly config load:file:/opt/homebrew/etc/npmrc
+14 verbose title npm install
+15 verbose argv "install" "--no-audit" "--no-fund" "--include" "optional"
+16 verbose logfile logs-max:10 dir:/Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T12_37_56_266Z-
+17 verbose logfile /Users/yg/projects/whisper_transcribe/frontend/.npm-cache/_logs/2025-08-09T12_37_56_266Z-debug-0.log
+18 silly logfile done cleaning log files
+19 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
+20 silly idealTree buildDeps
+21 warn EBADENGINE Unsupported engine {
+21 warn EBADENGINE   package: 'frontend@0.0.0',
+21 warn EBADENGINE   required: { node: '>=18.0.0 <23.0.0', npm: '>=8.0.0' },
+21 warn EBADENGINE   current: { node: 'v24.3.0', npm: '11.4.2' }
+21 warn EBADENGINE }
+22 silly reify moves {}
+23 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-win32-x64-msvc
+24 silly reify mark deleted [
+24 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-win32-x64-msvc'
+24 silly reify ]
+25 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-win32-ia32-msvc
+26 silly reify mark deleted [
+26 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-win32-ia32-msvc'
+26 silly reify ]
+27 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-win32-arm64-msvc
+28 silly reify mark deleted [
+28 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-win32-arm64-msvc'
+28 silly reify ]
+29 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-x64-musl
+30 silly reify mark deleted [
+30 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-x64-musl'
+30 silly reify ]
+31 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-x64-gnu
+32 silly reify mark deleted [
+32 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-x64-gnu'
+32 silly reify ]
+33 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-s390x-gnu
+34 silly reify mark deleted [
+34 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-s390x-gnu'
+34 silly reify ]
+35 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-riscv64-musl
+36 silly reify mark deleted [
+36 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-riscv64-musl'
+36 silly reify ]
+37 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-riscv64-gnu
+38 silly reify mark deleted [
+38 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-riscv64-gnu'
+38 silly reify ]
+39 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-powerpc64le-gnu
+40 silly reify mark deleted [
+40 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-powerpc64le-gnu'
+40 silly reify ]
+41 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-loongarch64-gnu
+42 silly reify mark deleted [
+42 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-loongarch64-gnu'
+42 silly reify ]
+43 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm64-musl
+44 silly reify mark deleted [
+44 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm64-musl'
+44 silly reify ]
+45 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm64-gnu
+46 silly reify mark deleted [
+46 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm64-gnu'
+46 silly reify ]
+47 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm-musleabihf
+48 silly reify mark deleted [
+48 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm-musleabihf'
+48 silly reify ]
+49 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm-gnueabihf
+50 silly reify mark deleted [
+50 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-linux-arm-gnueabihf'
+50 silly reify ]
+51 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-freebsd-x64
+52 silly reify mark deleted [
+52 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-freebsd-x64'
+52 silly reify ]
+53 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-freebsd-arm64
+54 silly reify mark deleted [
+54 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-freebsd-arm64'
+54 silly reify ]
+55 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-darwin-x64
+56 silly reify mark deleted [
+56 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-darwin-x64'
+56 silly reify ]
+57 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-android-arm64
+58 silly reify mark deleted [
+58 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-android-arm64'
+58 silly reify ]
+59 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-android-arm-eabi
+60 silly reify mark deleted [
+60 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@rollup/rollup-android-arm-eabi'
+60 silly reify ]
+61 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/win32-x64
+62 silly reify mark deleted [
+62 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/win32-x64'
+62 silly reify ]
+63 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/win32-ia32
+64 silly reify mark deleted [
+64 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/win32-ia32'
+64 silly reify ]
+65 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/win32-arm64
+66 silly reify mark deleted [
+66 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/win32-arm64'
+66 silly reify ]
+67 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/sunos-x64
+68 silly reify mark deleted [
+68 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/sunos-x64'
+68 silly reify ]
+69 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/openharmony-arm64
+70 silly reify mark deleted [
+70 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/openharmony-arm64'
+70 silly reify ]
+71 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/openbsd-x64
+72 silly reify mark deleted [
+72 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/openbsd-x64'
+72 silly reify ]
+73 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/openbsd-arm64
+74 silly reify mark deleted [
+74 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/openbsd-arm64'
+74 silly reify ]
+75 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/netbsd-x64
+76 silly reify mark deleted [
+76 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/netbsd-x64'
+76 silly reify ]
+77 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/netbsd-arm64
+78 silly reify mark deleted [
+78 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/netbsd-arm64'
+78 silly reify ]
+79 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-x64
+80 silly reify mark deleted [
+80 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-x64'
+80 silly reify ]
+81 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-s390x
+82 silly reify mark deleted [
+82 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-s390x'
+82 silly reify ]
+83 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-riscv64
+84 silly reify mark deleted [
+84 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-riscv64'
+84 silly reify ]
+85 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-ppc64
+86 silly reify mark deleted [
+86 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-ppc64'
+86 silly reify ]
+87 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-mips64el
+88 silly reify mark deleted [
+88 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-mips64el'
+88 silly reify ]
+89 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-loong64
+90 silly reify mark deleted [
+90 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-loong64'
+90 silly reify ]
+91 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-ia32
+92 silly reify mark deleted [
+92 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-ia32'
+92 silly reify ]
+93 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-arm64
+94 silly reify mark deleted [
+94 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-arm64'
+94 silly reify ]
+95 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-arm
+96 silly reify mark deleted [
+96 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/linux-arm'
+96 silly reify ]
+97 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/freebsd-x64
+98 silly reify mark deleted [
+98 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/freebsd-x64'
+98 silly reify ]
+99 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/freebsd-arm64
+100 silly reify mark deleted [
+100 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/freebsd-arm64'
+100 silly reify ]
+101 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/darwin-x64
+102 silly reify mark deleted [
+102 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/darwin-x64'
+102 silly reify ]
+103 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/android-x64
+104 silly reify mark deleted [
+104 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/android-x64'
+104 silly reify ]
+105 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/android-arm64
+106 silly reify mark deleted [
+106 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/android-arm64'
+106 silly reify ]
+107 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/android-arm
+108 silly reify mark deleted [
+108 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/android-arm'
+108 silly reify ]
+109 verbose reify failed optional dependency /Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/aix-ppc64
+110 silly reify mark deleted [
+110 silly reify   '/Users/yg/projects/whisper_transcribe/frontend/node_modules/@esbuild/aix-ppc64'
+110 silly reify ]
+111 http cache @rollup/rollup-darwin-arm64@https://registry.npmjs.org/@rollup/rollup-darwin-arm64/-/rollup-darwin-arm64-4.45.1.tgz 0ms (cache hit)
+112 http cache fsevents@https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz 0ms (cache hit)
+113 http cache @esbuild/darwin-arm64@https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.8.tgz 0ms (cache hit)
+114 silly tarball no local data for @rollup/rollup-darwin-arm64@https://registry.npmjs.org/@rollup/rollup-darwin-arm64/-/rollup-darwin-arm64-4.45.1.tgz. Extracting by manifest.
+115 silly tarball no local data for fsevents@https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz. Extracting by manifest.
+116 silly tarball no local data for @esbuild/darwin-arm64@https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.8.tgz. Extracting by manifest.
+117 http fetch GET 200 https://registry.npmjs.org/@rollup/rollup-darwin-arm64/-/rollup-darwin-arm64-4.45.1.tgz 1718ms (cache miss)
+118 http fetch GET 200 https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz 1825ms (cache miss)
+119 http fetch GET 200 https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.8.tgz 4373ms (cache miss)
+120 silly ADD node_modules/fsevents
+121 silly ADD node_modules/@rollup/rollup-win32-x64-msvc
+122 silly ADD node_modules/@rollup/rollup-win32-ia32-msvc
+123 silly ADD node_modules/@rollup/rollup-win32-arm64-msvc
+124 silly ADD node_modules/@rollup/rollup-linux-x64-musl
+125 silly ADD node_modules/@rollup/rollup-linux-x64-gnu
+126 silly ADD node_modules/@rollup/rollup-linux-s390x-gnu
+127 silly ADD node_modules/@rollup/rollup-linux-riscv64-musl
+128 silly ADD node_modules/@rollup/rollup-linux-riscv64-gnu
+129 silly ADD node_modules/@rollup/rollup-linux-powerpc64le-gnu
+130 silly ADD node_modules/@rollup/rollup-linux-loongarch64-gnu
+131 silly ADD node_modules/@rollup/rollup-linux-arm64-musl
+132 silly ADD node_modules/@rollup/rollup-linux-arm64-gnu
+133 silly ADD node_modules/@rollup/rollup-linux-arm-musleabihf
+134 silly ADD node_modules/@rollup/rollup-linux-arm-gnueabihf
+135 silly ADD node_modules/@rollup/rollup-freebsd-x64
+136 silly ADD node_modules/@rollup/rollup-freebsd-arm64
+137 silly ADD node_modules/@rollup/rollup-darwin-x64
+138 silly ADD node_modules/@rollup/rollup-darwin-arm64
+139 silly ADD node_modules/@rollup/rollup-android-arm64
+140 silly ADD node_modules/@rollup/rollup-android-arm-eabi
+141 silly ADD node_modules/@esbuild/win32-x64
+142 silly ADD node_modules/@esbuild/win32-ia32
+143 silly ADD node_modules/@esbuild/win32-arm64
+144 silly ADD node_modules/@esbuild/sunos-x64
+145 silly ADD node_modules/@esbuild/openharmony-arm64
+146 silly ADD node_modules/@esbuild/openbsd-x64
+147 silly ADD node_modules/@esbuild/openbsd-arm64
+148 silly ADD node_modules/@esbuild/netbsd-x64
+149 silly ADD node_modules/@esbuild/netbsd-arm64
+150 silly ADD node_modules/@esbuild/linux-x64
+151 silly ADD node_modules/@esbuild/linux-s390x
+152 silly ADD node_modules/@esbuild/linux-riscv64
+153 silly ADD node_modules/@esbuild/linux-ppc64
+154 silly ADD node_modules/@esbuild/linux-mips64el
+155 silly ADD node_modules/@esbuild/linux-loong64
+156 silly ADD node_modules/@esbuild/linux-ia32
+157 silly ADD node_modules/@esbuild/linux-arm64
+158 silly ADD node_modules/@esbuild/linux-arm
+159 silly ADD node_modules/@esbuild/freebsd-x64
+160 silly ADD node_modules/@esbuild/freebsd-arm64
+161 silly ADD node_modules/@esbuild/darwin-x64
+162 silly ADD node_modules/@esbuild/darwin-arm64
+163 silly ADD node_modules/@esbuild/android-x64
+164 silly ADD node_modules/@esbuild/android-arm64
+165 silly ADD node_modules/@esbuild/android-arm
+166 silly ADD node_modules/@esbuild/aix-ppc64
+167 verbose cwd /Users/yg/projects/whisper_transcribe/frontend
+168 verbose os Darwin 24.5.0
+169 verbose node v24.3.0
+170 verbose npm  v11.4.2
+171 verbose exit 0
+172 info ok
