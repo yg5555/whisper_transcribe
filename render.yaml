@@ -8,12 +8,18 @@ services:
       echo "Node.js バージョン: $(node --version)"
       echo "npm バージョン: $(npm --version)"
       echo "Python バージョン: $(python --version)"
-      
+
+      # フロントエンドをビルド（本番はビルド段階で作る）
+      echo "=== フロントエンドビルド開始 ==="
+      cd frontend
+      npm ci --no-audit --no-fund
+      npm run build
+
       # バックエンド依存関係インストール
-      cd backend
       echo "=== バックエンド依存関係インストール ==="
+      cd ../backend
       pip install -r requirements.txt
-      
+
       echo "=== ビルド完了 ==="
     startCommand: bash start.sh
     healthCheckPath: /health
