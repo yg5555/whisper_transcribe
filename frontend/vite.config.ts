@@ -12,18 +12,12 @@ export default defineConfig({
       }
     },
     target: 'es2015',
-    minify: 'terser',
-    // Rollupのネイティブモジュールを無効化
-    commonjsOptions: {
-      include: []
-    },
     // メモリ効率化
     chunkSizeWarningLimit: 1000,
     sourcemap: false
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
-    exclude: ['@rollup/rollup-linux-x64-gnu']
+    include: ['react', 'react-dom']
   },
   server: {
     host: '0.0.0.0',
