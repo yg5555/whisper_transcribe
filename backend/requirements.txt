@@ -5,6 +5,10 @@ nicegui==1.4.17
 python-dotenv
 openai-whisper @ git+https://github.com/openai/whisper.git@517a43ecd132a2089d85f4ebc044728a71d49f6e
 
+# メモリ効率化のための設定
+torch==2.8.0
+torchaudio==2.8.0
+
 # Notion連携用
 requests>=2.31.0
 markdown>=3.5.0
