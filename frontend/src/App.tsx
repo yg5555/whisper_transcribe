@@ -12,13 +12,40 @@ function App() {
       const rawBase = (import.meta.env.VITE_API_BASE as string | undefined) || (import.meta.env.PROD ? '' : 'http://localhost:8000');
       const base = rawBase.replace(/\/$/, '');
       const healthUrl = `${base}/api/health`;
+      const rootUrl = `${base}/`;
       
       console.log('ヘルスチェック呼び出し:', healthUrl);
+      console.log('ルートパス確認:', rootUrl);
+      console.log('環境変数 VITE_API_BASE:', import.meta.env.VITE_API_BASE);
+      console.log('環境変数 PROD:', import.meta.env.PROD);
+      console.log('計算されたベースURL:', base);
+      
+      // まずルートパスを試行
+      try {
+        const rootResponse = await fetch(rootUrl);
+        console.log('ルートパスレスポンス:', rootResponse.status, rootResponse.statusText);
+        if (rootResponse.ok) {
+          const rootData = await rootResponse.json();
+          console.log('ルートパスデータ:', rootData);
+        }
+      } catch (rootError) {
+        console.log('ルートパスエラー:', rootError);
+      }
       
       const response = await fetch(healthUrl);
+      console.log('ヘルスチェックレスポンスステータス:', response.status);
+      console.log('レスポンスヘッダー:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('APIエラーレスポンス:', errorText);
+        setApiStatus(`接続エラー: ${response.status} ${response.statusText}`);
+        return;
+      }
+      
       const data = await response.json();
       
-      if (response.ok && data.status === 'ok') {
+      if (data.status === 'ok') {
         setApiStatus('接続OK');
         console.log('API接続正常:', data);
       } else {
@@ -28,6 +55,12 @@ function App() {
     } catch (error) {
       setApiStatus('接続失敗');
       console.error('ヘルスチェックエラー:', error);
+      
+      // エラーの詳細を表示
+      if (error instanceof Error) {
+        console.error('エラーメッセージ:', error.message);
+        console.error('エラースタック:', error.stack);
+      }
     }
   };
 

@@ -47,3 +47,5 @@ services:
         value: 8000
       - key: NODE_OPTIONS
         value: "--max-old-space-size=256"
+      - key: VITE_API_BASE
+        value: "https://whisper-transcribe-mdxq.onrender.com"

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Whisper Transcribe API Test</h1>
+    
+    <div>
+        <h2>API接続テスト</h2>
+        <button onclick="testRoot()">ルートパス (/) テスト</button>
+        <button onclick="testHealth()">ヘルスチェック (/health) テスト</button>
+        <button onclick="testApiHealth()">APIヘルスチェック (/api/health) テスト</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        const baseUrl = 'https://whisper-transcribe-mdxq.onrender.com';
+        
+        function log(message) {
+            const results = document.getElementById('results');
+            results.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        async function testRoot() {
+            try {
+                log('=== ルートパステスト開始 ===');
+                const response = await fetch(baseUrl + '/');
+                log(`ステータス: ${response.status} ${response.statusText}`);
+                log(`ヘッダー: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+                
+                if (response.ok) {
+                    const data = await response.text();
+                    log(`レスポンス: ${data.substring(0, 200)}...`);
+                }
+            } catch (error) {
+                log(`エラー: ${error.message}`);
+            }
+        }
+        
+        async function testHealth() {
+            try {
+                log('=== ヘルスチェックテスト開始 ===');
+                const response = await fetch(baseUrl + '/health');
+                log(`ステータス: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`レスポンス: ${JSON.stringify(data)}`);
+                } else {
+                    const errorText = await response.text();
+                    log(`エラー内容: ${errorText}`);
+                }
+            } catch (error) {
+                log(`エラー: ${error.message}`);
+            }
+        }
+        
+        async function testApiHealth() {
+            try {
+                log('=== APIヘルスチェックテスト開始 ===');
+                const response = await fetch(baseUrl + '/api/health');
+                log(`ステータス: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`レスポンス: ${JSON.stringify(data)}`);
+                } else {
+                    const errorText = await response.text();
+                    log(`エラー内容: ${errorText}`);
+                }
+            } catch (error) {
+                log(`エラー: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html> 
