@@ -26,7 +26,7 @@ cat > dist/index.html << 'EOF'
     <link rel="icon" type="image/svg+xml" href="/static/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Whisper Transcriber</title>
-    <script type="module" crossorigin src="/static/assets/index-DY2XI4e0.js"></script>
+    <script type="module" crossorigin src="/static/assets/index-BLqfF7NK.js"></script>
     <link rel="stylesheet" crossorigin href="/static/assets/index-aPRTlObn.css">
   </head>
   <body>
@@ -136,8 +136,8 @@ body {
 }
 EOF
 
-# 基本的なJavaScriptファイルを作成
-cat > dist/assets/index-DY2XI4e0.js << 'EOF'
+# 基本的なJavaScriptファイルを作成（新しいハッシュ名）
+cat > dist/assets/index-BLqfF7NK.js << 'EOF'
 // 基本的なReactアプリケーション
 import React from 'react';
 import ReactDOM from 'react-dom/client';

@@ -31,21 +31,41 @@ services:
       echo "=== フロントエンドビルド結果をコピー ==="
       cp -r ../frontend/dist ./static
       
-      # 静的ファイルの内容を確認
-      echo "=== 静的ファイルの内容 ==="
-      ls -la static/
-      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
+      # 本番環境で生成される可能性のある新しいハッシュ名のファイルを確認
+      echo "=== 本番環境のファイルハッシュ名を確認 ==="
+      # 利用可能なJavaScriptファイルを確認
+      echo "利用可能なJavaScriptファイル:"
+      ls -la static/assets/*.js || echo "JavaScriptファイルがありません"
       
-      # index.htmlの内容を確認
-      echo "=== index.htmlの内容 ==="
-      head -10 static/index.html || echo "index.htmlが見つかりません"
+      # 最初に見つかったJavaScriptファイルのハッシュ名を取得
+      JS_FILE=$(ls static/assets/*.js 2>/dev/null | head -1)
+      if [ -n "$JS_FILE" ]; then
+        JS_FILENAME=$(basename "$JS_FILE")
+        echo "見つかったJavaScriptファイル: $JS_FILENAME"
+        # index.htmlを新しいハッシュ名に更新（複数のパターンに対応）
+        sed -i "s/index-[A-Za-z0-9]*\.js/$JS_FILENAME/g" static/index.html
+        echo "index.htmlを $JS_FILENAME に更新しました"
+        
+              # 更新後のindex.htmlの内容を確認
+      echo "=== 更新後のindex.htmlの内容 ==="
+      head -10 static/index.html
       
-      # アセットファイルの内容を確認
-      echo "=== アセットファイルの内容 ==="
-      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
-      if [ -f "static/assets/index-DY2XI4e0.js" ]; then
-        echo "JavaScriptファイルが見つかりました"
-        wc -l static/assets/index-DY2XI4e0.js
+      # CSSファイルも同様に更新
+      CSS_FILE=$(ls static/assets/*.css 2>/dev/null | head -1)
+      if [ -n "$CSS_FILE" ]; then
+        CSS_FILENAME=$(basename "$CSS_FILE")
+        echo "見つかったCSSファイル: $CSS_FILENAME"
+        # index.htmlを新しいハッシュ名に更新（複数のパターンに対応）
+        sed -i "s/index-[A-Za-z0-9]*\.css/$CSS_FILENAME/g" static/index.html
+        echo "index.htmlのCSSを $CSS_FILENAME に更新しました"
+      else
+        echo "CSSファイルが見つかりません"
+      fi
+      
+      # 最終的なindex.htmlの内容を確認
+      echo "=== 最終的なindex.htmlの内容 ==="
+      head -15 static/index.html
+      
       else
         echo "JavaScriptファイルが見つかりません"
       fi
@@ -68,6 +88,15 @@ services:
       # 静的ファイルの内容を最終確認
       echo "=== 静的ファイルの内容を最終確認 ==="
       find static/ -type f -exec echo "{}" \;
+      
+      # 最終的な静的ファイルの内容を確認
+      echo "=== 最終的な静的ファイルの内容 ==="
+      ls -la static/
+      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
+      
+      # 最終的なindex.htmlの内容を確認
+      echo "=== 最終的なindex.htmlの内容 ==="
+      head -15 static/index.html || echo "index.htmlが見つかりません"
 
       echo "=== ビルド完了 ==="
     startCommand: |

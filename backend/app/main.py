@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import os
 from pathlib import Path
+import mimetypes
 
 # APIルーターをインポート
 from app.api import transcribe_api, upload_api, health_api, result_api, status_api, download_api
@@ -33,7 +34,7 @@ frontend_build_path = Path("./static")
 if frontend_build_path.exists():
     try:
         # 静的ファイルを /static にマウント（APIエンドポイントとの競合を避ける）
-        app.mount("/static", StaticFiles(directory=str(frontend_build_path)), name="static")
+        app.mount("/static", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
         print(f"静的ファイル配信を有効化: {frontend_build_path} -> /static")
         
         # 静的ファイルの内容を確認
@@ -49,7 +50,7 @@ else:
     fallback_path = Path("../frontend/dist")
     if fallback_path.exists():
         try:
-            app.mount("/static", StaticFiles(directory=str(fallback_path)), name="static")
+            app.mount("/static", StaticFiles(directory=str(fallback_path), html=True), name="static")
             print(f"フォールバック静的ファイル配信を有効化: {fallback_path} -> /static")
         except Exception as e:
             print(f"フォールバック静的ファイル配信の設定エラー: {e}")
@@ -93,6 +94,31 @@ async def health_check():
 @app.get("/api/health")
 async def api_health_check():
     return {"status": "ok", "message": "API endpoints are available"}
+
+# カスタム静的ファイルハンドラー（MIMEタイプを正しく設定）
+@app.get("/static/{file_path:path}")
+async def serve_static_file(file_path: str):
+    """静的ファイルを正しいMIMEタイプで配信"""
+    frontend_build_path = Path("./static")
+    file_path_obj = frontend_build_path / file_path
+    
+    if not file_path_obj.exists():
+        return {"error": "File not found"}, 404
+    
+    # MIMEタイプを決定
+    mime_type, _ = mimetypes.guess_type(str(file_path_obj))
+    if mime_type is None:
+        # デフォルトのMIMEタイプ
+        if file_path.endswith('.js'):
+            mime_type = 'application/javascript'
+        elif file_path.endswith('.css'):
+            mime_type = 'text/css'
+        elif file_path.endswith('.html'):
+            mime_type = 'text/html'
+        else:
+            mime_type = 'application/octet-stream'
+    
+    return FileResponse(str(file_path_obj), media_type=mime_type)
 
 if __name__ == "__main__":
     import uvicorn
