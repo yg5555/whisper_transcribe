@@ -35,6 +35,12 @@ if frontend_build_path.exists():
         # 静的ファイルを /static にマウント（APIエンドポイントとの競合を避ける）
         app.mount("/static", StaticFiles(directory=str(frontend_build_path)), name="static")
         print(f"静的ファイル配信を有効化: {frontend_build_path} -> /static")
+        
+        # 静的ファイルの内容を確認
+        static_files = list(frontend_build_path.rglob("*"))
+        print(f"静的ファイル数: {len(static_files)}")
+        for file in static_files[:5]:  # 最初の5ファイルを表示
+            print(f"  - {file}")
     except Exception as e:
         print(f"静的ファイル配信の設定エラー: {e}")
 else:
@@ -47,6 +53,8 @@ else:
             print(f"フォールバック静的ファイル配信を有効化: {fallback_path} -> /static")
         except Exception as e:
             print(f"フォールバック静的ファイル配信の設定エラー: {e}")
+    else:
+        print(f"フォールバックパスも見つかりません: {fallback_path}")
 
 @app.get("/")
 async def root():
@@ -54,16 +62,29 @@ async def root():
     frontend_build_path = Path("./static")
     index_path = frontend_build_path / "index.html"
     
+    print(f"ルートパスアクセス: index.htmlを探しています")
+    print(f"探しているパス: {index_path}")
+    
     if index_path.exists():
+        print(f"index.htmlが見つかりました: {index_path}")
         return FileResponse(str(index_path))
     
     # フォールバック
     fallback_path = Path("../frontend/dist/index.html")
+    print(f"フォールバックパスを確認: {fallback_path}")
     if fallback_path.exists():
+        print(f"フォールバックindex.htmlが見つかりました: {fallback_path}")
         return FileResponse(str(fallback_path))
     
+    # 静的ファイルディレクトリの内容を確認
+    if frontend_build_path.exists():
+        static_files = list(frontend_build_path.rglob("*"))
+        print(f"静的ファイルディレクトリの内容:")
+        for file in static_files[:10]:
+            print(f"  - {file}")
+    
     # 最後のフォールバック: API情報を返す
-    return {"message": "Whisper Transcribe API", "version": "1.0.0", "status": "frontend_not_found"}
+    return {"message": "Whisper Transcribe API", "version": "1.0.0", "status": "frontend_not_found", "error": "index.html not found"}
 
 @app.get("/health")
 async def health_check():
