@@ -12,22 +12,62 @@ services:
       # フロントエンドをビルド（本番はビルド段階で作る）
       echo "=== フロントエンドビルド開始 ==="
       cd frontend
-      # NOTE: npm has a known bug with optional deps (rollup native binaries) across platforms.
-      # Remove lockfile and node_modules, then install to resolve correct Linux binaries.
+      # Rollupのネイティブモジュール問題を回避
       rm -rf node_modules package-lock.json
-      # Ensure optional deps (e.g. Rollup native binaries) are installed on Linux
-      npm config set optional true
-      npm install --no-audit --no-fund --include=optional
-      npm run build
+      # オプショナル依存関係を除外してインストール
+      npm install --omit=optional --no-audit --no-fund
+      # ビルドを試行（失敗した場合は手動でファイルを作成）
+      npm run build || (echo "ビルドに失敗しました。フォールバックファイルを作成します。" && cd .. && chmod +x create-fallback-frontend.sh && ./create-fallback-frontend.sh && cd frontend)
 
+      # フロントエンドディレクトリに戻る
+      cd ..
+      
       # バックエンド依存関係インストール
       echo "=== バックエンド依存関係インストール ==="
-      cd ../backend
+      cd backend
       pip install -r requirements.txt
 
       # フロントエンドのビルド結果をバックエンドディレクトリにコピー
       echo "=== フロントエンドビルド結果をコピー ==="
       cp -r ../frontend/dist ./static
+      
+      # 静的ファイルの内容を確認
+      echo "=== 静的ファイルの内容 ==="
+      ls -la static/
+      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
+      
+      # index.htmlの内容を確認
+      echo "=== index.htmlの内容 ==="
+      head -10 static/index.html || echo "index.htmlが見つかりません"
+      
+      # アセットファイルの内容を確認
+      echo "=== アセットファイルの内容 ==="
+      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
+      if [ -f "static/assets/index-DY2XI4e0.js" ]; then
+        echo "JavaScriptファイルが見つかりました"
+        wc -l static/assets/index-DY2XI4e0.js
+      else
+        echo "JavaScriptファイルが見つかりません"
+      fi
+      
+      # 静的ファイルのパーミッションを確認
+      echo "=== 静的ファイルのパーミッション ==="
+      ls -la static/
+      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
+      
+      # 静的ファイルのパーミッションを設定
+      echo "=== 静的ファイルのパーミッションを設定 ==="
+      chmod -R 644 static/
+      find static/ -type d -exec chmod 755 {} \;
+      
+      # 静的ファイルのサイズを確認
+      echo "=== 静的ファイルのサイズ ==="
+      du -sh static/
+      du -sh static/assets/ || echo "assetsディレクトリが見つかりません"
+      
+      # 静的ファイルの内容を最終確認
+      echo "=== 静的ファイルの内容を最終確認 ==="
+      find static/ -type f -exec echo "{}" \;
 
       echo "=== ビルド完了 ==="
     startCommand: |

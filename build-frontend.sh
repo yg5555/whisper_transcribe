@@ -25,7 +25,7 @@ npm cache clean --force
 
 # 依存関係を再インストール
 echo "=== 依存関係をインストール ==="
-npm install --platform=linux --arch=x64
+npm install --omit=optional --no-audit --no-fund
 
 # ビルドを実行
 echo "=== ビルドを実行 ==="
