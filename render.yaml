@@ -18,6 +18,15 @@ services:
       npm install --omit=optional --no-audit --no-fund
       # ビルドを試行（失敗した場合は手動でファイルを作成）
       npm run build || (echo "ビルドに失敗しました。フォールバックファイルを作成します。" && cd .. && chmod +x create-fallback-frontend.sh && ./create-fallback-frontend.sh && cd frontend)
+      
+      # フォールバックファイルが作成されたか確認
+      if [ ! -f "dist/assets/index-BLqfF7NK.js" ]; then
+        echo "フォールバックファイルが作成されていません。手動で作成します。"
+        cd ..
+        chmod +x create-fallback-frontend.sh
+        ./create-fallback-frontend.sh
+        cd frontend
+      fi
 
       # フロントエンドディレクトリに戻る
       cd ..
@@ -30,6 +39,19 @@ services:
       # フロントエンドのビルド結果をバックエンドディレクトリにコピー
       echo "=== フロントエンドビルド結果をコピー ==="
       cp -r ../frontend/dist ./static
+      
+      # 必要なファイルが存在するか確認
+      echo "=== 必要なファイルの存在確認 ==="
+      if [ -f "static/assets/index-BLqfF7NK.js" ]; then
+        echo "必要なJavaScriptファイルが存在します"
+      else
+        echo "必要なJavaScriptファイルが存在しません。フォールバックファイルを作成します。"
+        cd ..
+        chmod +x create-fallback-frontend.sh
+        ./create-fallback-frontend.sh
+        cp -r frontend/dist/* backend/static/
+        cd backend
+      fi
       
       # 本番環境で生成される可能性のある新しいハッシュ名のファイルを確認
       echo "=== 本番環境のファイルハッシュ名を確認 ==="
@@ -46,28 +68,39 @@ services:
         sed -i "s/index-[A-Za-z0-9]*\.js/$JS_FILENAME/g" static/index.html
         echo "index.htmlを $JS_FILENAME に更新しました"
         
-              # 更新後のindex.htmlの内容を確認
-      echo "=== 更新後のindex.htmlの内容 ==="
-      head -10 static/index.html
+        # 更新後のindex.htmlの内容を確認
+        echo "=== 更新後のindex.htmlの内容 ==="
+        head -10 static/index.html
       
-      # CSSファイルも同様に更新
-      CSS_FILE=$(ls static/assets/*.css 2>/dev/null | head -1)
-      if [ -n "$CSS_FILE" ]; then
-        CSS_FILENAME=$(basename "$CSS_FILE")
-        echo "見つかったCSSファイル: $CSS_FILENAME"
-        # index.htmlを新しいハッシュ名に更新（複数のパターンに対応）
-        sed -i "s/index-[A-Za-z0-9]*\.css/$CSS_FILENAME/g" static/index.html
-        echo "index.htmlのCSSを $CSS_FILENAME に更新しました"
-      else
-        echo "CSSファイルが見つかりません"
-      fi
-      
-      # 最終的なindex.htmlの内容を確認
-      echo "=== 最終的なindex.htmlの内容 ==="
-      head -15 static/index.html
-      
+        # CSSファイルも同様に更新
+        CSS_FILE=$(ls static/assets/*.css 2>/dev/null | head -1)
+        if [ -n "$CSS_FILE" ]; then
+          CSS_FILENAME=$(basename "$CSS_FILE")
+          echo "見つかったCSSファイル: $CSS_FILENAME"
+          # index.htmlを新しいハッシュ名に更新（複数のパターンに対応）
+          sed -i "s/index-[A-Za-z0-9]*\.css/$CSS_FILENAME/g" static/index.html
+          echo "index.htmlのCSSを $CSS_FILENAME に更新しました"
+        else
+          echo "CSSファイルが見つかりません"
+        fi
+        
+        # 最終的なindex.htmlの内容を確認
+        echo "=== 最終的なindex.htmlの内容 ==="
+        head -15 static/index.html
+        
+        # 静的ファイルの内容を確認
+        echo "=== 静的ファイルの内容 ==="
+        ls -la static/
+        ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
       else
         echo "JavaScriptファイルが見つかりません"
+        # フォールバックファイルを作成
+        echo "フォールバックファイルを作成します。"
+        cd ..
+        chmod +x create-fallback-frontend.sh
+        ./create-fallback-frontend.sh
+        cp -r frontend/dist/* backend/static/
+        cd backend
       fi
       
       # 静的ファイルのパーミッションを確認
@@ -97,6 +130,11 @@ services:
       # 最終的なindex.htmlの内容を確認
       echo "=== 最終的なindex.htmlの内容 ==="
       head -15 static/index.html || echo "index.htmlが見つかりません"
+      
+      # 最終的な静的ファイルの内容を確認
+      echo "=== 最終的な静的ファイルの内容 ==="
+      ls -la static/
+      ls -la static/assets/ || echo "assetsディレクトリが見つかりません"
 
       echo "=== ビルド完了 ==="
     startCommand: |
