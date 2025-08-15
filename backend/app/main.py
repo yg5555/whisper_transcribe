@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import os
 from pathlib import Path
-import mimetypes
 
 # APIルーターをインポート
 from app.api import transcribe_api, upload_api, health_api, result_api, status_api, download_api
@@ -94,8 +93,6 @@ async def health_check():
 @app.get("/api/health")
 async def api_health_check():
     return {"status": "ok", "message": "API endpoints are available"}
-
-
 
 if __name__ == "__main__":
     import uvicorn

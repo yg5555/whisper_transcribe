@@ -136,7 +136,7 @@ body {
 }
 EOF
 
-# 基本的なJavaScriptファイルを作成（新しいハッシュ名）
+# 基本的なJavaScriptファイルを作成
 cat > dist/assets/index-BLqfF7NK.js << 'EOF'
 // 基本的なReactアプリケーション
 import React from 'react';
