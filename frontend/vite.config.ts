@@ -9,12 +9,15 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
-    // Rollupを無効化してesbuildのみを使用
+    // 本番環境では /static パスを使用
+    base: mode === 'production' ? '/static/' : '/',
+    // ビルド設定
     build: {
       target: 'es2015',
       chunkSizeWarningLimit: 1000,
       sourcemap: false,
       minify: 'esbuild',
+      outDir: 'dist',
       rollupOptions: {
         // Rollupを無効化
         external: () => false,
@@ -22,11 +25,6 @@ export default defineConfig(({ mode }) => {
           manualChunks: undefined
         }
       }
-    },
-    // 本番環境では /static パスを使用
-    base: mode === 'production' ? '/static/' : '/',
-    build: {
-      outDir: 'dist'
     },
     optimizeDeps: {
       include: ['react', 'react-dom']
