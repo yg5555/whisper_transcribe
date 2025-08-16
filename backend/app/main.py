@@ -19,14 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# APIルーターを追加
-app.include_router(transcribe_api.router, prefix="/api", tags=["transcribe"])
-app.include_router(upload_api.router, prefix="/api", tags=["upload"])
-app.include_router(health_api.router, prefix="/api", tags=["health"])
-app.include_router(result_api.router, prefix="/api", tags=["result"])
-app.include_router(status_api.router, prefix="/api", tags=["status"])
-app.include_router(download_api.router, prefix="/api", tags=["download"])
-
 # 静的ファイル配信（フロントエンドのビルド結果）
 # Render環境では ./static ディレクトリにコピーされている
 frontend_build_path = Path("./static")
@@ -55,6 +47,56 @@ else:
             print(f"フォールバック静的ファイル配信の設定エラー: {e}")
     else:
         print(f"フォールバックパスも見つかりません: {fallback_path}")
+
+# APIルーターを追加
+app.include_router(transcribe_api.router, prefix="/api", tags=["transcribe"])
+app.include_router(upload_api.router, prefix="/api", tags=["upload"])
+app.include_router(health_api.router, prefix="/api", tags=["health"])
+app.include_router(result_api.router, prefix="/api", tags=["result"])
+app.include_router(status_api.router, prefix="/api", tags=["status"])
+app.include_router(download_api.router, prefix="/api", tags=["download"])
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "Whisper Transcribe API is running"}
+
+@app.get("/api/health")
+async def api_health_check():
+    return {"status": "ok", "message": "API endpoints are available"}
+
+@app.get("/test-static")
+async def test_static():
+    """静的ファイルの配信状況をテストするエンドポイント"""
+    frontend_build_path = Path("./static")
+    
+    if not frontend_build_path.exists():
+        return {"error": "Static directory not found"}
+    
+    # 静的ファイルの一覧を取得
+    static_files = list(frontend_build_path.rglob("*"))
+    file_info = []
+    
+    for file_path in static_files:
+        if file_path.is_file():
+            try:
+                stat = file_path.stat()
+                file_info.append({
+                    "path": str(file_path.relative_to(frontend_build_path)),
+                    "size": stat.st_size,
+                    "exists": True
+                })
+            except Exception as e:
+                file_info.append({
+                    "path": str(file_path.relative_to(frontend_build_path)),
+                    "error": str(e)
+                })
+    
+    return {
+        "static_directory": str(frontend_build_path),
+        "exists": frontend_build_path.exists(),
+        "files": file_info,
+        "total_files": len(file_info)
+    }
 
 @app.get("/")
 async def root():
@@ -109,48 +151,6 @@ async def spa(full_path: str):
         return FileResponse(str(fallback_path), media_type="text/html")
     
     return {"error": "Frontend not found"}
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "message": "Whisper Transcribe API is running"}
-
-@app.get("/api/health")
-async def api_health_check():
-    return {"status": "ok", "message": "API endpoints are available"}
-
-@app.get("/test-static")
-async def test_static():
-    """静的ファイルの配信状況をテストするエンドポイント"""
-    frontend_build_path = Path("./static")
-    
-    if not frontend_build_path.exists():
-        return {"error": "Static directory not found"}
-    
-    # 静的ファイルの一覧を取得
-    static_files = list(frontend_build_path.rglob("*"))
-    file_info = []
-    
-    for file_path in static_files:
-        if file_path.is_file():
-            try:
-                stat = file_path.stat()
-                file_info.append({
-                    "path": str(file_path.relative_to(frontend_build_path)),
-                    "size": stat.st_size,
-                    "exists": True
-                })
-            except Exception as e:
-                file_info.append({
-                    "path": str(file_path.relative_to(frontend_build_path)),
-                    "error": str(e)
-                })
-    
-    return {
-        "static_directory": str(frontend_build_path),
-        "exists": frontend_build_path.exists(),
-        "files": file_info,
-        "total_files": len(file_info)
-    }
 
 if __name__ == "__main__":
     import uvicorn
