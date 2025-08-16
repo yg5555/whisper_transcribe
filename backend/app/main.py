@@ -33,7 +33,7 @@ frontend_build_path = Path("./static")
 if frontend_build_path.exists():
     try:
         # 静的ファイルを /static にマウント（正しいMIMEタイプで配信）
-        app.mount("/static", StaticFiles(directory=str(frontend_build_path)), name="static")
+        app.mount("/static", StaticFiles(directory=str(frontend_build_path), html=True), name="static")
         print(f"静的ファイル配信を有効化: {frontend_build_path} -> /static")
         
         # 静的ファイルの内容を確認
@@ -49,7 +49,7 @@ else:
     fallback_path = Path("../frontend/dist")
     if fallback_path.exists():
         try:
-            app.mount("/static", StaticFiles(directory=str(fallback_path)), name="static")
+            app.mount("/static", StaticFiles(directory=str(fallback_path), html=True), name="static")
             print(f"フォールバック静的ファイル配信を有効化: {fallback_path} -> /static")
         except Exception as e:
             print(f"フォールバック静的ファイル配信の設定エラー: {e}")
@@ -88,13 +88,16 @@ async def root():
 
 @app.get("/{full_path:path}")
 async def spa(full_path: str):
-    """SPAフォールバック: /static/ 以外のパスでindex.htmlを返す"""
-    # /static/ パスは除外（静的ファイル配信に任せる）
-    if full_path.startswith("static/"):
+    """SPAフォールバック: 静的ファイルが見つからない場合にindex.htmlを返す"""
+    # 静的ファイルの存在を確認
+    frontend_build_path = Path("./static")
+    static_file_path = frontend_build_path / full_path
+    
+    # 静的ファイルが存在する場合は404を返す（StaticFilesに任せる）
+    if static_file_path.exists() and static_file_path.is_file():
         return {"error": "Static file not found", "path": full_path}
     
     # その他のパスではindex.htmlを返す（SPAルーティング）
-    frontend_build_path = Path("./static")
     index_path = frontend_build_path / "index.html"
     
     if index_path.exists():
@@ -114,6 +117,40 @@ async def health_check():
 @app.get("/api/health")
 async def api_health_check():
     return {"status": "ok", "message": "API endpoints are available"}
+
+@app.get("/test-static")
+async def test_static():
+    """静的ファイルの配信状況をテストするエンドポイント"""
+    frontend_build_path = Path("./static")
+    
+    if not frontend_build_path.exists():
+        return {"error": "Static directory not found"}
+    
+    # 静的ファイルの一覧を取得
+    static_files = list(frontend_build_path.rglob("*"))
+    file_info = []
+    
+    for file_path in static_files:
+        if file_path.is_file():
+            try:
+                stat = file_path.stat()
+                file_info.append({
+                    "path": str(file_path.relative_to(frontend_build_path)),
+                    "size": stat.st_size,
+                    "exists": True
+                })
+            except Exception as e:
+                file_info.append({
+                    "path": str(file_path.relative_to(frontend_build_path)),
+                    "error": str(e)
+                })
+    
+    return {
+        "static_directory": str(frontend_build_path),
+        "exists": frontend_build_path.exists(),
+        "files": file_info,
+        "total_files": len(file_info)
+    }
 
 if __name__ == "__main__":
     import uvicorn
