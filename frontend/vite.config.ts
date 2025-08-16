@@ -25,6 +25,9 @@ export default defineConfig(({ mode }) => {
     },
     // 本番環境では /static パスを使用
     base: mode === 'production' ? '/static/' : '/',
+    build: {
+      outDir: 'dist'
+    },
     optimizeDeps: {
       include: ['react', 'react-dom']
     },

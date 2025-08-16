@@ -29,7 +29,8 @@ services:
 
       # フロントエンドのビルド結果をバックエンドディレクトリにコピー
       echo "=== フロントエンドビルド結果をコピー ==="
-      cp -r ../frontend/dist ./static
+      mkdir -p static
+      cp -r ../frontend/dist/* static/
       
       # 静的ファイルの内容を確認
       echo "=== 静的ファイルの内容 ==="
@@ -98,6 +99,26 @@ services:
       # 修正後のindex.htmlの内容を確認
       echo "=== 修正後のindex.htmlの内容 ==="
       head -15 static/index.html
+      
+      # 確認ポイント: 重要なファイルの存在確認
+      echo "=== 確認ポイント: 重要なファイルの存在確認 ==="
+      echo "index.html: $(test -f static/index.html && echo 'OK' || echo 'NG')"
+      echo "vite.svg: $(test -f static/vite.svg && echo 'OK' || echo 'NG')"
+      echo "assets dir: $(test -d static/assets && echo 'OK' || echo 'NG')"
+      echo "JS files: $(ls static/assets/*.js 2>/dev/null | wc -l) files found"
+      echo "CSS files: $(ls static/assets/*.css 2>/dev/null | wc -l) files found"
+      
+      # ファイルの内容確認
+      echo "=== ファイルの内容確認 ==="
+      if [ -f "static/index.html" ]; then
+        echo "index.htmlの先頭10行:"
+        head -10 static/index.html
+      fi
+      
+      if [ -f "static/assets/index-BLqfF7NK.js" ]; then
+        echo "JavaScriptファイルの先頭3行:"
+        head -3 static/assets/index-BLqfF7NK.js
+      fi
 
       echo "=== ビルド完了 ==="
     startCommand: |

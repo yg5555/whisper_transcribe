@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from starlette.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import os
@@ -32,8 +32,8 @@ app.include_router(download_api.router, prefix="/api", tags=["download"])
 frontend_build_path = Path("./static")
 if frontend_build_path.exists():
     try:
-        # 静的ファイルを /static にマウント（MIMEタイプを正しく設定）
-        app.mount("/static", StaticFiles(directory=str(frontend_build_path), html=True, check_dir=True), name="static")
+        # 静的ファイルを /static にマウント（正しいMIMEタイプで配信）
+        app.mount("/static", StaticFiles(directory=str(frontend_build_path)), name="static")
         print(f"静的ファイル配信を有効化: {frontend_build_path} -> /static")
         
         # 静的ファイルの内容を確認
@@ -49,7 +49,7 @@ else:
     fallback_path = Path("../frontend/dist")
     if fallback_path.exists():
         try:
-            app.mount("/static", StaticFiles(directory=str(fallback_path), html=True, check_dir=True), name="static")
+            app.mount("/static", StaticFiles(directory=str(fallback_path)), name="static")
             print(f"フォールバック静的ファイル配信を有効化: {fallback_path} -> /static")
         except Exception as e:
             print(f"フォールバック静的ファイル配信の設定エラー: {e}")
@@ -67,14 +67,14 @@ async def root():
     
     if index_path.exists():
         print(f"index.htmlが見つかりました: {index_path}")
-        return FileResponse(str(index_path))
+        return FileResponse(str(index_path), media_type="text/html")
     
     # フォールバック
     fallback_path = Path("../frontend/dist/index.html")
     print(f"フォールバックパスを確認: {fallback_path}")
     if fallback_path.exists():
         print(f"フォールバックindex.htmlが見つかりました: {fallback_path}")
-        return FileResponse(str(fallback_path))
+        return FileResponse(str(fallback_path), media_type="text/html")
     
     # 静的ファイルディレクトリの内容を確認
     if frontend_build_path.exists():
@@ -85,6 +85,27 @@ async def root():
     
     # 最後のフォールバック: API情報を返す
     return {"message": "Whisper Transcribe API", "version": "1.0.0", "status": "frontend_not_found", "error": "index.html not found"}
+
+@app.get("/{full_path:path}")
+async def spa(full_path: str):
+    """SPAフォールバック: /static/ 以外のパスでindex.htmlを返す"""
+    # /static/ パスは除外（静的ファイル配信に任せる）
+    if full_path.startswith("static/"):
+        return {"error": "Static file not found", "path": full_path}
+    
+    # その他のパスではindex.htmlを返す（SPAルーティング）
+    frontend_build_path = Path("./static")
+    index_path = frontend_build_path / "index.html"
+    
+    if index_path.exists():
+        return FileResponse(str(index_path), media_type="text/html")
+    
+    # フォールバック
+    fallback_path = Path("../frontend/dist/index.html")
+    if fallback_path.exists():
+        return FileResponse(str(fallback_path), media_type="text/html")
+    
+    return {"error": "Frontend not found"}
 
 @app.get("/health")
 async def health_check():
