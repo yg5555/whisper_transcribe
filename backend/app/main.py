@@ -10,10 +10,16 @@ from app.api import transcribe_api, upload_api, health_api, result_api, status_a
 
 app = FastAPI(title="Whisper Transcribe API", version="1.0.0")
 
+# 許可するオリジン（フロントエンドのURL）を指定
+origins = [
+    "https://whisper-transcribe-m6xq.onrender.com",
+]
+
+
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
