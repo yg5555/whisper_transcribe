@@ -9,8 +9,12 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
-    // 本番環境では /static パスを使用
-    base: mode === 'production' ? '/static/' : '/',
+    
+    // --- 修正箇所 ---
+    // Render.com の Static Site はルートでホストされるため、'/' を指定します。
+    base: '/',
+    // --- 修正ここまで ---
+
     // ビルド設定
     build: {
       target: 'es2015',
@@ -46,3 +50,4 @@ export default defineConfig(({ mode }) => {
     }
   }
 })
+
