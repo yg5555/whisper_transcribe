@@ -1,19 +1,26 @@
-from fastapi import FastAPI
-from starlette.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 import os
 from pathlib import Path
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from starlette.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 # APIルーターをインポート
+# (app/api/transcribe_api.py などが存在することを前提としています)
 from app.api import transcribe_api, upload_api, health_api, result_api, status_api, download_api
 
 app = FastAPI(title="Whisper Transcribe API", version="1.0.0")
 
+# --- CORS設定の修正 ---
 # 許可するオリジン（フロントエンドのURL）を指定
+# エラー画像に表示されていたオリジンと、既存のオリジン、ローカル開発用を追加
 origins = [
-    "https://whisper-transcribe-m6xq.onrender.com",
+    "https://whisper-transcribe-mdxo.onrender.com",  # ★ エラー画像に表示されていたフロントエンドURL
+    "https://whisper-transcribe-m6xq.onrender.com",  # 既存の設定（念のため残す）
+    "http://localhost:3000",                        # ローカル開発用 (React)
+    "http://127.0.0.1:3000",                      # ローカル開発用 (React)
 ]
+# --- ここまで修正 ---
 
 
 # CORS設定
@@ -64,10 +71,12 @@ app.include_router(download_api.router, prefix="/api", tags=["download"])
 
 @app.get("/health")
 async def health_check():
+    """APIサーバー自体のヘルスチェック"""
     return {"status": "ok", "message": "Whisper Transcribe API is running"}
 
 @app.get("/api/health")
 async def api_health_check():
+    """APIエンドポイントのヘルスチェック（/api プレフィックス）"""
     return {"status": "ok", "message": "API endpoints are available"}
 
 @app.get("/test-static")
@@ -76,7 +85,7 @@ async def test_static():
     frontend_build_path = Path("./static")
     
     if not frontend_build_path.exists():
-        return {"error": "Static directory not found"}
+        return {"error": "Static directory not found", "path": str(frontend_build_path.resolve())}
     
     # 静的ファイルの一覧を取得
     static_files = list(frontend_build_path.rglob("*"))
@@ -98,7 +107,7 @@ async def test_static():
                 })
     
     return {
-        "static_directory": str(frontend_build_path),
+        "static_directory": str(frontend_build_path.resolve()),
         "exists": frontend_build_path.exists(),
         "files": file_info,
         "total_files": len(file_info)
@@ -111,7 +120,7 @@ async def root():
     index_path = frontend_build_path / "index.html"
     
     print(f"ルートパスアクセス: index.htmlを探しています")
-    print(f"探しているパス: {index_path}")
+    print(f"探しているパス: {index_path.resolve()}")
     
     if index_path.exists():
         print(f"index.htmlが見つかりました: {index_path}")
@@ -119,7 +128,7 @@ async def root():
     
     # フォールバック
     fallback_path = Path("../frontend/dist/index.html")
-    print(f"フォールバックパスを確認: {fallback_path}")
+    print(f"フォールバックパスを確認: {fallback_path.resolve()}")
     if fallback_path.exists():
         print(f"フォールバックindex.htmlが見つかりました: {fallback_path}")
         return FileResponse(str(fallback_path), media_type="text/html")
@@ -132,21 +141,32 @@ async def root():
             print(f"  - {file}")
     
     # 最後のフォールバック: API情報を返す
-    return {"message": "Whisper Transcribe API", "version": "1.0.0", "status": "frontend_not_found", "error": "index.html not found"}
+    return {"message": "Whisper Transcribe API", "version": "1.0.0", "status": "frontend_not_found", "error": f"index.html not found at {index_path.resolve()}"}
 
 @app.get("/{full_path:path}")
 async def spa(full_path: str):
     """SPAフォールバック: 静的ファイルが見つからない場合にindex.htmlを返す"""
-    # 静的ファイルの存在を確認
     frontend_build_path = Path("./static")
     static_file_path = frontend_build_path / full_path
     
-    # 静的ファイルが存在する場合は404を返す（StaticFilesに任せる）
+    # APIパス（/api）やマウント済みのパス（/static）、ヘルスチェックパスは除外
+    if (full_path.startswith("api/") or 
+        full_path.startswith("static/") or 
+        full_path == "health" or 
+        full_path == "test-static"):
+         # このリクエストはSPAの対象外であるため、FastAPIの次の処理（または404）に任せる
+         # ここでエラーを返さず、他のルートにマッチする可能性を残す
+         # ただし、これが最後のルートなので、事実上404 Not Foundとなる
+         return {"error": "Not a SPA path", "path": full_path}
+
+    # 静的ファイルが具体的に存在する場合はStaticFilesが処理するはず
+    # ここに到達するのは、React Routerが処理すべきパス
     if static_file_path.exists() and static_file_path.is_file():
-        return {"error": "Static file not found", "path": full_path}
-    
+        pass
+
     # その他のパスではindex.htmlを返す（SPAルーティング）
     index_path = frontend_build_path / "index.html"
+    print(f"SPAフォールバック: {full_path} -> index.html")
     
     if index_path.exists():
         return FileResponse(str(index_path), media_type="text/html")
@@ -156,9 +176,13 @@ async def spa(full_path: str):
     if fallback_path.exists():
         return FileResponse(str(fallback_path), media_type="text/html")
     
-    return {"error": "Frontend not found"}
+    print(f"SPAフォールバックエラー: index.htmlが見つかりません。 path: {full_path}")
+    return {"error": "Frontend not found", "path": full_path}
 
 if __name__ == "__main__":
     import uvicorn
+    # PORT環境変数を読み込む（RenderなどのPaaS対応）
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # 0.0.0.0 を指定して、コンテナ外部からのアクセスを受け入れる
+    # "main:app" のように文字列で指定し、reload=Trueで開発時に自動リロード
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
