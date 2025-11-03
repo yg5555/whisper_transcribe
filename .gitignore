@@ -12,10 +12,8 @@ audio_archive/
 output/
 .DS_Store
 
-#セキュリティ
+# セキュリティ
 .env
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
+
+# Node.js "部品" フォルダ
+frontend/node_modules
