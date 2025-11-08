@@ -13,15 +13,15 @@ app = FastAPI(title="Whisper Transcribe API", version="1.0.0")
 # --- 1. CORS設定の修正 ---
 # 許可するオリジン（フロントエンドのURL）を指定
 origins = [
-    "https://whisper-transcribe-m6xq.onrender.com",  # 以前のエラー画像にあったURL
-    # "https://whisper-transcribe-mdxo.onrender.com", # もし別のURLもある場合は追加
+    "https://whisper-transcribe-mdxo.onrender.com",  # ★ 今回のエラー画像で確認されたURL
+    "https://whisper-transcribe-m6xq.onrender.com",  # 以前のURL（念のため残す）
     "http://localhost:3000",                        # ローカル開発用 (React)
     "http://127.0.0.1:3000",                      # ローカル開発用 (React)
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # 修正: "*" から具体的なオリジンリストに変更
+    allow_origins=origins,  # 修正: 具体的なオリジンリストに変更
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
