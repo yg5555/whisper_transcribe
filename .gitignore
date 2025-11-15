@@ -15,10 +15,13 @@ output/
 # セキュリティ
 .env
 
+# --- HFで拒否されたフォルダ ---
+backend/app/flagged/
+frontend/.npm-cache/
+
 # Node.js "部品" フォルダ
 frontend/node_modules
-
-# --- ここから追記 (AIモデルとデータ) ---
+node_modules/
 
 # AIモデルファイル (Whisperなど)
 *.pt
