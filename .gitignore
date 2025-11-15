@@ -17,3 +17,17 @@ output/
 
 # Node.js "部品" フォルダ
 frontend/node_modules
+
+# --- ここから追記 (AIモデルとデータ) ---
+
+# AIモデルファイル (Whisperなど)
+*.pt
+*.pth
+*.onnx
+
+# データファイル (音声・動画)
+*.mp3
+*.wav
+*.m4a
+*.mp4
+*.ogg
