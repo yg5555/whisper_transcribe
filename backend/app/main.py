@@ -1,27 +1,26 @@
 import os
-from pathlib import Path
 from fastapi import FastAPI
-from starlette.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 # --- APIルーターのインポート ---
-# app/api/transcribe_api.py などが存在することを前提
+# (app/api/transcribe_api.py などが存在することを前提)
 from app.api import transcribe_api, upload_api, health_api, result_api, status_api, download_api
 
 app = FastAPI(title="Whisper Transcribe API", version="1.0.0")
 
-# --- 1. CORS設定の修正 ---
-# 許可するオリジン（フロントエンドのURL）を指定
+# --- 1. CORS設定 (これは必須) ---
+# Render上のReactアプリ (フロントエンド) から
+# このAPI (バックエンド) へのアクセスを許可します。
 origins = [
-    "https://whisper-transcribe-mdxq.onrender.com",  # ★ 今回のエラー画像で確認されたURL
-    "https://whisper-transcribe-m6xq.onrender.com",  # 以前のURL（念のため残す）
+    "https://whisper-transcribe-mdxq.onrender.com",  # RenderのフロントエンドURL
+    # "https://whisper-transcribe-m6xq.onrender.com",  # (必要であれば)
     "http://localhost:3000",                        # ローカル開発用 (React)
     "http://127.0.0.1:3000",                      # ローカル開発用 (React)
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # 修正: 具体的なオリジンリストに変更
+    allow_origins=origins,  # 許可するオリジンを指定
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,38 +36,21 @@ app.include_router(status_api.router, prefix="/api", tags=["status"])
 app.include_router(download_api.router, prefix="/api", tags=["download"])
 
 
-# --- 3. 静的ファイル（Reactアプリ）の配信設定 ---
-# (注意: この設定は APIルーター登録の *後* に記述する必要があります)
-
-frontend_build_path = Path("./static")
-
-if frontend_build_path.exists():
-    print(f"フロントエンドビルドパスが見つかりました: {frontend_build_path.resolve()}")
-    
-    # StaticFilesをルート("/")にマウントします
-    # html=True にすることで、/ や /other-path などの
-    # 存在しないパスへのアクセス時に index.html を返し、
-    # React Router (SPA) が正しく動作するようになります。
-    app.mount(
-        "/", 
-        StaticFiles(directory=str(frontend_build_path), html=True), 
-        name="static-root"
-    )
-else:
-    print(f"警告: フロントエンドビルドディレクトリが見つかりません: {frontend_build_path.resolve()}")
-    
-    @app.get("/")
-    async def root_fallback():
-        return {
-            "message": "Whisper Transcribe API is running", 
-            "error": "Frontend static directory not found.",
-            "path_checked": str(frontend_build_path.resolve())
-        }
+# --- 3. ルート ("/") の動作確認エンドポイント ---
+# (静的ファイルの配信は削除)
+# HF SpacesのURLに直接アクセスした際に、
+# APIが起動していることを確認するために追加。
+@app.get("/")
+async def root_fallback():
+    return {
+        "message": "Whisper Transcribe API is running",
+        "docs_url": "/docs" # FastAPIの自動ドキュメント
+    }
 
 # --- 4. 開発用サーバー起動設定 ---
+# (このブロックはローカルでの開発・テスト用です)
+# (Hugging Face Spacesは Dockerfile の CMD を使って起動します)
 if __name__ == "__main__":
     import uvicorn
-    # PORT環境変数を読み込む（RenderなどのPaaS対応）
-    port = int(os.getenv("PORT", 8000))
-    # "main:app" のように文字列で指定し、reload=Trueで開発時に自動リロード
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    # ローカル開発時は 8000 ポートで実行
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
